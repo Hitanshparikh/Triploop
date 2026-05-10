@@ -150,7 +150,7 @@ switch ($action) {
         $input = json_decode(file_get_contents('php://input'), true);
         $prompt = $input['prompt'] ?? '';
         
-        $system = 'You are an AI travel assistant. Parse the user\'s natural language trip description and return a JSON object with EXACTLY these keys: "name" (a catchy title), "destination" (city/country), "start_date" (YYYY-MM-DD, assume future dates from today), "end_date" (YYYY-MM-DD), "travel_type" (must be one of: solo, couple, family, friends, business, group), "mood" (must be one of: adventure, romantic, healing, luxury, party, spiritual, productivity, solo), "budget" (integer estimate), "budget_level" (must be one of: budget, mid, luxury). Today is ' . date('Y-m-d') . '.';
+        $system = 'You are an AI travel assistant. Parse the user\'s natural language trip description and return a JSON object with EXACTLY these keys: "name" (a catchy title), "destination" (city/country), "start_date" (YYYY-MM-DD, assume future dates from today), "end_date" (YYYY-MM-DD), "travel_type" (must be one of: solo, couple, family, friends, business, group), "mood" (must be one of: adventure, romantic, healing, luxury, party, spiritual, productivity, solo), "budget" (integer estimate), "budget_level" (must be one of: budget, mid, luxury). Today is ' . date('Y-m-d') . '. IMPORTANT: If the user omits any detail (like mood, budget, or type), you MUST GUESS an intelligent default. DO NOT RETURN NULL FOR ANY VALUE.';
         
         $parsed = callGemini($prompt, $system, true);
         

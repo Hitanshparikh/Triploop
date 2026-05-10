@@ -173,7 +173,7 @@ function callGemini($prompt, $systemInstruction = null, $jsonMode = false) {
         return null;
     }
 
-    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . GEMINI_API_KEY;
+    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . GEMINI_API_KEY;
 
     $payload = [
         'contents' => [
@@ -218,6 +218,9 @@ function callGemini($prompt, $systemInstruction = null, $jsonMode = false) {
     if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
         $text = $data['candidates'][0]['content']['parts'][0]['text'];
         if ($jsonMode) {
+            $text = preg_replace('/^```json\s*/i', '', $text);
+            $text = preg_replace('/```\s*$/', '', $text);
+            $text = trim($text);
             $parsed = json_decode($text, true);
             return $parsed ? $parsed : null;
         }
