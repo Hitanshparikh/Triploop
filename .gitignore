@@ -38,3 +38,11 @@ uploads/journal/*
 
 # Env
 .env
+
+# ⚠️  Config contains secrets (Google OAuth, DB password) — do NOT commit
+config/config.php
+
+# Temp/scratch scripts
+extract.php
+replace.php
+excalidraw_text.txt
