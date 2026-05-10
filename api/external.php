@@ -97,6 +97,8 @@ switch ($action) {
                 ['name' => 'Chiang Kai-shek Memorial Hall', 'description' => 'Famous national monument.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1572019777174-8b5e905d5e56?auto=format&fit=crop&w=400&q=80'],
                 ['name' => 'National Palace Museum', 'description' => 'Huge collection of Chinese art.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1621255855073-6330fb3950fb?auto=format&fit=crop&w=400&q=80'],
                 ['name' => 'Elephant Mountain', 'description' => 'Hiking trail with great city views.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1596781223910-c057697b0d77?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Longshan Temple', 'description' => 'Historic and beautifully ornate temple.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1556064436-b6b5d92dfce7?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Ximending', 'description' => 'Bustling shopping and entertainment district.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1549693578-cbc25555d496?auto=format&fit=crop&w=400&q=80']
             ]]]);
             exit;
         }
@@ -137,6 +139,9 @@ switch ($action) {
                 ['name' => 'Din Tai Fung', 'description' => 'World-famous xiao long bao.', 'rating' => 4.9, 'image' => 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80'],
                 ['name' => 'Raohe Night Market', 'description' => 'Bustling market with street food.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1525207934214-58e69a8f8a3e?auto=format&fit=crop&w=400&q=80'],
                 ['name' => 'Shilin Night Market', 'description' => 'One of the largest night markets.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Addiction Aquatic Development', 'description' => 'Fresh seafood market and sushi bar.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'MUME', 'description' => 'Michelin-starred modern European cuisine.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Ay-Chung Flour-Rice Noodle', 'description' => 'Legendary street food spot in Ximending.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1582450871972-ab5ce21118ce?auto=format&fit=crop&w=400&q=80']
             ]]]);
             exit;
         }
@@ -159,6 +164,9 @@ switch ($action) {
                 ['name' => 'W Taipei', 'description' => 'Luxury hotel with a trendy vibe.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'],
                 ['name' => 'Grand Hyatt Taipei', 'description' => 'Iconic 5-star hotel near Taipei 101.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=400&q=80'],
                 ['name' => 'Regent Taipei', 'description' => 'Elegant and sophisticated stay.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1542314831-c6a420325142?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Mandarin Oriental Taipei', 'description' => 'Ultra-luxurious with classic European design.', 'rating' => 4.9, 'image' => 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Kimpton Da An', 'description' => 'Chic boutique hotel in a hip neighborhood.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1551882547-ff40c0d12c56?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Palais de Chine', 'description' => 'Unique blend of Eastern and Western elegance.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1618773928120-2c1538fc1225?auto=format&fit=crop&w=400&q=80']
             ]]]);
             exit;
         }

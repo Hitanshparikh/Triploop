@@ -323,7 +323,7 @@ function renderItems(items, gridId, icon) {
     items.slice(0, 12).forEach(item => {
         const title = item.name || item.title || 'Unknown Place';
         const desc = item.description || item.snippet || 'A wonderful place to visit in ' + currentCity + '.';
-        const img = item.image || item.photo_url || `https://source.unsplash.com/400x300/?${encodeURIComponent(currentCity + ' ' + title)}`;
+        const img = item.image || item.photo_url || `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80`;
         const rating = item.rating || (Math.random() * (5 - 4) + 4).toFixed(1);
 
         grid.innerHTML += `
@@ -343,12 +343,20 @@ function renderItems(items, gridId, icon) {
 function mockRender(gridId, type) {
     const grid = document.getElementById(gridId);
     grid.innerHTML = '';
-    for(let i=1; i<=6; i++) {
-        const imgQuery = type === 'Places' ? 'landmark' : (type === 'Restaurants' ? 'food,restaurant' : 'hotel,room');
+    const mockImages = [
+        'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=400&q=80'
+    ];
+    for(let i=0; i<6; i++) {
+        const img = mockImages[i];
         grid.innerHTML += `
             <div class="place-card reveal-scale">
-                <img src="https://images.unsplash.com/photo-${1500000000000 + i}?q=80&w=400&auto=format&fit=crop" class="place-img" style="background:var(--bg-elevated);">
-                <h3 class="place-title">${currentCity} ${type} ${i}</h3>
+                <img src="${img}" class="place-img" style="background:var(--bg-elevated);">
+                <h3 class="place-title">${currentCity} ${type} ${i+1}</h3>
                 <p class="place-desc">Experience the best ${type.toLowerCase()} in ${currentCity}. Highly rated by locals and travelers alike.</p>
                 <div class="place-meta">
                     <span style="color:var(--text-muted);"><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;margin-right:4px;vertical-align:middle;"></i>${currentCity} Center</span>
