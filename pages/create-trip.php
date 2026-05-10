@@ -121,12 +121,12 @@ textarea.input-field{resize:vertical;min-height:100px;}
             <i data-lucide="sparkles" style="width:14px;height:14px;color:var(--accent-purple);"></i> AI Suggestions
           </p>
           <div style="display:flex;flex-wrap:wrap;gap:var(--space-2);" id="suggestionChips">
-            <span class="suggestion-chip" onclick="pickSuggestion(this)">🗼 Tokyo, Japan</span>
-            <span class="suggestion-chip" onclick="pickSuggestion(this)">🗽 New York, USA</span>
-            <span class="suggestion-chip" onclick="pickSuggestion(this)">🏝 Bali, Indonesia</span>
-            <span class="suggestion-chip" onclick="pickSuggestion(this)">🗺 Paris, France</span>
-            <span class="suggestion-chip" onclick="pickSuggestion(this)">🏔 Santorini, Greece</span>
-            <span class="suggestion-chip" onclick="pickSuggestion(this)">✨ Dubai, UAE</span>
+            <span class="suggestion-chip" onclick="pickSuggestion(this)"><i data-lucide="map-pin" style="width:14px;height:14px;"></i> Tokyo, Japan</span>
+            <span class="suggestion-chip" onclick="pickSuggestion(this)"><i data-lucide="building" style="width:14px;height:14px;"></i> New York, USA</span>
+            <span class="suggestion-chip" onclick="pickSuggestion(this)"><i data-lucide="palmtree" style="width:14px;height:14px;"></i> Bali, Indonesia</span>
+            <span class="suggestion-chip" onclick="pickSuggestion(this)"><i data-lucide="map" style="width:14px;height:14px;"></i> Paris, France</span>
+            <span class="suggestion-chip" onclick="pickSuggestion(this)"><i data-lucide="mountain" style="width:14px;height:14px;"></i> Santorini, Greece</span>
+            <span class="suggestion-chip" onclick="pickSuggestion(this)"><i data-lucide="sparkles" style="width:14px;height:14px;"></i> Dubai, UAE</span>
           </div>
         </div>
         <div class="input-group" style="margin-top:var(--space-5);">

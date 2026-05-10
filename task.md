@@ -1,0 +1,23 @@
+# Task List
+
+- [x] Apply Dark Luxury UI design system (colors, fonts, glassmorphism).
+- [x] Remove all emojis and replace with Lucide SVG icons.
+- [x] Database Initialization (`setup.php` creates tables and seeds demo data).
+- [x] Refactor `pages/dashboard.php` to fetch live data.
+- [x] Refactor `pages/itinerary-view.php` and `pages/itinerary-builder.php` to use `itinerary_sections` table.
+- [x] Refactor `pages/budget.php` to calculate and graph expenses from `trip_expenses` table.
+- [x] Refactor `pages/journal.php` to fetch live data and mood themes.
+- [x] Refactor `pages/community.php` to fetch and display public trips.
+- [x] Refactor `pages/packing.php` to support interactive checklists connected to DB.
+- [ ] Build API Endpoint: `api/itinerary.php` (save, order, delete).
+- [ ] Build API Endpoint: `api/journal.php` (create, delete, validate CSRF).
+- [ ] Build API Endpoint: `api/budget.php` (add expense, delete expense).
+- [ ] Build API Endpoint: `api/trips.php` (create trip wizard submit logic).
+- [ ] Build API Endpoint: `api/packing.php` (save checked states, generate defaults).
+- [ ] Implement robust form validation and error handling across all APIs.
+- [ ] Polish `pages/create-trip.php` wizard JS transitions.
+- [ ] Implement `pages/shared-trip.php` read-only view.
+- [ ] Implement profile settings (`pages/profile.php`).
+- [ ] Add mobile responsiveness (collapsible sidebar, responsive tables).
+- [ ] Security audit: ensure `requireAuth()` and CSRF protections on all mutation endpoints.
+- [ ] Dynamic AI Insights: replace hardcoded tips with dynamic context-aware tips based on trip state.

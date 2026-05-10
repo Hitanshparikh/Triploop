@@ -1,51 +1,98 @@
 <?php
 require_once __DIR__ . '/../includes/functions.php';
 requireAuth();
+$userId = currentUserId();
+$tripId = intval($_GET['id'] ?? ($_GET['trip_id'] ?? 1));
+
+// Fetch Trip Data
+$trip = db()->fetch("SELECT * FROM trips WHERE id = ? AND user_id = ?", [$tripId, $userId]);
+if (!$trip) {
+    setFlash('error', 'Trip not found.');
+    redirect('/pages/my-trips.php');
+}
+
+// Fetch Expenses
+$expenses = db()->fetchAll("SELECT * FROM expenses WHERE trip_id = ? ORDER BY expense_date DESC", [$tripId]);
+
+$budgetTotal = floatval($trip['budget_total']);
+$totalSpent = 0;
+$catTotals = [];
+$dailyTotals = [];
+
+foreach ($expenses as $exp) {
+    $amount = floatval($exp['amount']);
+    $totalSpent += $amount;
+    
+    // Category totals for pie chart
+    $cat = $exp['category'] ?: 'other';
+    $catTotals[$cat] = ($catTotals[$cat] ?? 0) + $amount;
+    
+    // Daily totals for line chart
+    $date = $exp['expense_date'] ?? 'TBD';
+    if ($date !== 'TBD') {
+        $dailyTotals[$date] = ($dailyTotals[$date] ?? 0) + $amount;
+    }
+}
+
+ksort($dailyTotals); // Sort by date
+
+$remaining = $budgetTotal - $totalSpent;
+$spentPct = $budgetTotal > 0 ? min(100, round(($totalSpent / $budgetTotal) * 100)) : 0;
+
+$theme = getMoodTheme($trip['mood']);
+
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 ?>
 
-<main class="main-content">
-    <div class="dashboard-header" style="margin-bottom: var(--space-8); display: flex; justify-content: space-between; align-items: flex-end;">
+<main class="main-content page-transition">
+    <!-- Include Chart.js from CDN if not globally loaded -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <div class="page-header" style="margin-bottom: var(--space-8); display: flex; justify-content: space-between; align-items: flex-end;">
         <div>
-            <h1 class="text-gradient" style="font-size: var(--text-4xl); margin-bottom: var(--space-2);">Budget Dashboard</h1>
-            <p style="color: var(--text-secondary);">Real-time spending intelligence.</p>
+            <a href="<?= APP_URL ?>/pages/itinerary-view.php?id=<?= $tripId ?>" style="display:inline-flex;align-items:center;gap:var(--space-2);color:var(--text-muted);font-size:var(--text-sm);margin-bottom:var(--space-3);text-decoration:none;">
+                <i data-lucide="arrow-left" style="width:14px;height:14px;"></i> Back to Itinerary
+            </a>
+            <h1 style="font-size: var(--text-4xl); margin-bottom: var(--space-2); font-weight:800; letter-spacing:-0.03em;">Budget — <?= e($trip['name']) ?></h1>
+            <p style="color: var(--text-secondary); font-size:var(--text-lg);">Real-time spending intelligence.</p>
         </div>
         <div style="display: flex; gap: var(--space-3);">
-            <button class="btn btn-secondary"><i data-lucide="download"></i> Export PDF</button>
-            <button class="btn btn-primary"><i data-lucide="plus"></i> Add Expense</button>
+            <a href="<?= APP_URL ?>/pages/invoice.php?trip_id=<?= $tripId ?>" class="btn btn-secondary"><i data-lucide="download" style="width:16px;height:16px;"></i> Export PDF</a>
+            <button class="btn btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Add Expense</button>
         </div>
     </div>
 
     <!-- Budget Insights Panel -->
-    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-bottom: var(--space-8);">
-        <div class="stat-card glass-card-static" style="padding: var(--space-6);">
-            <p style="color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Total Budget</p>
-            <h2 style="font-size: var(--text-3xl);">$5,000.00</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-10);">
+        <div class="stat-card">
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight:500; text-transform:uppercase; letter-spacing:0.05em;">Total Budget (<?= e($trip['currency']) ?>)</p>
+            <h2 style="font-size: var(--text-4xl); font-weight:700;">$<?= number_format($budgetTotal, 2) ?></h2>
         </div>
-        <div class="stat-card glass-card-static" style="padding: var(--space-6);">
-            <p style="color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Total Spent</p>
-            <h2 style="font-size: var(--text-3xl); color: var(--accent-orange);">$2,450.00</h2>
-            <div style="width: 100%; height: 6px; background: var(--bg-elevated); border-radius: 3px; margin-top: var(--space-4); overflow: hidden;">
-                <div style="width: 49%; height: 100%; background: var(--gradient-warm);"></div>
+        <div class="stat-card">
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight:500; text-transform:uppercase; letter-spacing:0.05em;">Total Spent</p>
+            <h2 style="font-size: var(--text-4xl); font-weight:700; color: var(--accent-orange);">$<?= number_format($totalSpent, 2) ?></h2>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 999px; margin-top: var(--space-4); overflow: hidden; box-shadow:inset 0 1px 2px rgba(0,0,0,0.2);">
+                <div style="width: <?= $spentPct ?>%; height: 100%; border-radius:999px; background: <?= $spentPct > 90 ? 'var(--accent-red)' : ($spentPct > 70 ? 'var(--accent-orange)' : 'var(--accent-cyan)') ?>;"></div>
             </div>
+            <p style="font-size:var(--text-xs); color:var(--text-muted); margin-top:6px; font-weight:500; text-align:right;"><?= $spentPct ?>% used</p>
         </div>
-        <div class="stat-card glass-card-static" style="padding: var(--space-6);">
-            <p style="color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm);">Remaining</p>
-            <h2 style="font-size: var(--text-3xl); color: var(--accent-green);">$2,550.00</h2>
+        <div class="stat-card">
+            <p style="color: var(--text-secondary); margin-bottom: var(--space-2); font-size: var(--text-sm); font-weight:500; text-transform:uppercase; letter-spacing:0.05em;">Remaining</p>
+            <h2 style="font-size: var(--text-4xl); font-weight:700; color: <?= $remaining >= 0 ? 'var(--accent-green)' : 'var(--accent-red)' ?>;">$<?= number_format($remaining, 2) ?></h2>
         </div>
     </div>
 
     <!-- Charts Section -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-8);">
-        <div class="glass-card-static" style="padding: var(--space-6);">
-            <h3 style="margin-bottom: var(--space-4); font-size: var(--text-lg);">Spending by Category</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin-bottom: var(--space-10);">
+        <div class="stat-card" style="padding: var(--space-6);">
+            <h3 style="margin-bottom: var(--space-4); font-size: var(--text-lg); font-weight:600;">Spending by Category</h3>
             <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
                 <canvas id="categoryChart"></canvas>
             </div>
         </div>
-        <div class="glass-card-static" style="padding: var(--space-6);">
-            <h3 style="margin-bottom: var(--space-4); font-size: var(--text-lg);">Daily Spending Trend</h3>
+        <div class="stat-card" style="padding: var(--space-6);">
+            <h3 style="margin-bottom: var(--space-4); font-size: var(--text-lg); font-weight:600;">Daily Spending Trend</h3>
             <div style="position: relative; height: 300px; width: 100%;">
                 <canvas id="trendChart"></canvas>
             </div>
@@ -53,96 +100,183 @@ require_once __DIR__ . '/../includes/sidebar.php';
     </div>
 
     <!-- Expense List -->
-    <div class="glass-card-static" style="padding: var(--space-6);">
-        <h3 style="margin-bottom: var(--space-4); font-size: var(--text-lg);">Recent Expenses</h3>
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="border-bottom: 1px solid var(--border-light); color: var(--text-muted); font-size: var(--text-sm);">
-                    <th style="padding: var(--space-3) 0;">Date</th>
-                    <th style="padding: var(--space-3) 0;">Description</th>
-                    <th style="padding: var(--space-3) 0;">Category</th>
-                    <th style="padding: var(--space-3) 0; text-align: right;">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr style="border-bottom: 1px solid var(--border-light);">
-                    <td style="padding: var(--space-3) 0;">Oct 12, 2026</td>
-                    <td style="padding: var(--space-3) 0; font-weight: var(--font-medium);">Flight to Tokyo</td>
-                    <td style="padding: var(--space-3) 0;"><span class="badge badge-purple">Transport</span></td>
-                    <td style="padding: var(--space-3) 0; text-align: right;">$1,200.00</td>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--border-light);">
-                    <td style="padding: var(--space-3) 0;">Oct 12, 2026</td>
-                    <td style="padding: var(--space-3) 0; font-weight: var(--font-medium);">Shinjuku Hotel Deposit</td>
-                    <td style="padding: var(--space-3) 0;"><span class="badge badge-cyan">Accommodation</span></td>
-                    <td style="padding: var(--space-3) 0; text-align: right;">$800.00</td>
-                </tr>
-                <tr>
-                    <td style="padding: var(--space-3) 0;">Oct 15, 2026</td>
-                    <td style="padding: var(--space-3) 0; font-weight: var(--font-medium);">Sushi Omakase</td>
-                    <td style="padding: var(--space-3) 0;"><span class="badge badge-orange">Food</span></td>
-                    <td style="padding: var(--space-3) 0; text-align: right;">$150.00</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="stat-card" style="padding: var(--space-6);">
+        <h3 style="margin-bottom: var(--space-6); font-size: var(--text-lg); font-weight:600;">Recent Expenses</h3>
+        <div style="overflow-x:auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); font-size: var(--text-sm);">
+                        <th style="padding: var(--space-3) 0; font-weight:500;">Date</th>
+                        <th style="padding: var(--space-3) 0; font-weight:500;">Description</th>
+                        <th style="padding: var(--space-3) 0; font-weight:500;">Category</th>
+                        <th style="padding: var(--space-3) 0; font-weight:500;">Status</th>
+                        <th style="padding: var(--space-3) 0; text-align: right; font-weight:500;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($expenses)): ?>
+                    <tr>
+                        <td colspan="5" style="text-align:center; padding:var(--space-8); color:var(--text-muted);">
+                            No expenses logged yet.
+                        </td>
+                    </tr>
+                    <?php else: ?>
+                        <?php foreach($expenses as $exp): 
+                            $badgeColor = match($exp['category']){
+                                'transport' => 'badge-purple',
+                                'accommodation' => 'badge-cyan',
+                                'food' => 'badge-orange',
+                                'sightseeing' => 'badge-green',
+                                'shopping' => 'badge-red',
+                                default => 'badge-cyan'
+                            };
+                        ?>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: var(--space-4) 0; color:var(--text-secondary); font-size:var(--text-sm);"><?= $exp['expense_date'] ? date('M j, Y', strtotime($exp['expense_date'])) : 'TBD' ?></td>
+                            <td style="padding: var(--space-4) 0; font-weight: 500; font-size:var(--text-sm);"><?= e($exp['description']) ?></td>
+                            <td style="padding: var(--space-4) 0;"><span class="badge <?= $badgeColor ?>" style="text-transform:capitalize;"><?= e($exp['category']) ?></span></td>
+                            <td style="padding: var(--space-4) 0;">
+                                <?php if($exp['is_paid']): ?>
+                                    <span style="color:var(--accent-green); font-size:var(--text-xs); font-weight:500; display:flex; align-items:center; gap:4px;"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> Paid</span>
+                                <?php else: ?>
+                                    <span style="color:var(--text-muted); font-size:var(--text-xs); font-weight:500; display:flex; align-items:center; gap:4px;"><i data-lucide="clock" style="width:12px;height:12px;"></i> Pending</span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="padding: var(--space-4) 0; text-align: right; font-weight:600; font-family:var(--font-mono);">$<?= number_format($exp['amount'], 2) ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    Chart.defaults.color = 'rgba(148, 163, 184, 0.8)';
-    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+    if (typeof Chart === 'undefined') return;
 
-    // Category Chart (Pie)
-    const ctxCat = document.getElementById('categoryChart').getContext('2d');
-    new Chart(ctxCat, {
-        type: 'doughnut',
-        data: {
-            labels: ['Transport', 'Accommodation', 'Food', 'Activities'],
-            datasets: [{
-                data: [1200, 800, 150, 300],
-                backgroundColor: [
-                    '#A855F7',
-                    '#00D4FF',
-                    '#FF6B35',
-                    '#10B981'
-                ],
-                borderWidth: 0,
-                cutout: '70%'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right' }
+    Chart.defaults.color = 'rgba(161, 161, 170, 0.8)';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // Prepare Category Data
+    const catLabels = <?= json_encode(array_map('ucfirst', array_keys($catTotals))) ?>;
+    const catData = <?= json_encode(array_values($catTotals)) ?>;
+    const bgColors = {
+        'Transport': '#c084fc',
+        'Accommodation': '#38bdf8',
+        'Food': '#fb923c',
+        'Sightseeing': '#34d399',
+        'Shopping': '#f87171',
+        'Other': '#a1a1aa'
+    };
+    const mappedBgColors = catLabels.map(l => bgColors[l] || '#38bdf8');
+
+    // Category Chart (Doughnut)
+    if (document.getElementById('categoryChart')) {
+        const ctxCat = document.getElementById('categoryChart').getContext('2d');
+        new Chart(ctxCat, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels.length ? catLabels : ['No Data'],
+                datasets: [{
+                    data: catData.length ? catData : [1],
+                    backgroundColor: catData.length ? mappedBgColors : ['#27272a'],
+                    borderWidth: 0,
+                    cutout: '75%',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } },
+                    tooltip: {
+                        backgroundColor: 'rgba(9, 9, 11, 0.9)',
+                        titleColor: '#fafafa',
+                        bodyColor: '#a1a1aa',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return ' $' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                }
             }
-        }
-    });
+        });
+    }
+
+    // Prepare Trend Data
+    const trendDates = <?= json_encode(array_map(function($d){ return date('M j', strtotime($d)); }, array_keys($dailyTotals))) ?>;
+    const trendData = <?= json_encode(array_values($dailyTotals)) ?>;
 
     // Trend Chart (Line)
-    const ctxTrend = document.getElementById('trendChart').getContext('2d');
-    new Chart(ctxTrend, {
-        type: 'line',
-        data: {
-            labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'],
-            datasets: [{
-                label: 'Daily Spend',
-                data: [50, 120, 80, 200, 150],
-                borderColor: '#00D4FF',
-                backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: { beginAtZero: true }
+    if (document.getElementById('trendChart')) {
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        
+        let gradient = ctxTrend.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(56, 189, 248, 0.2)');
+        gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
+
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: trendDates.length ? trendDates : ['Day 1'],
+                datasets: [{
+                    label: 'Daily Spend',
+                    data: trendData.length ? trendData : [0],
+                    borderColor: '#38bdf8',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#09090b',
+                    pointBorderColor: '#38bdf8',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(9, 9, 11, 0.9)',
+                        titleColor: '#a1a1aa',
+                        bodyColor: '#fafafa',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return ' $' + context.raw.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.03)' },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                }
             }
-        }
-    });
+        });
+    }
 });
 </script>
 
