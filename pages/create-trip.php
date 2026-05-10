@@ -496,7 +496,7 @@ document.getElementById('createTripForm').addEventListener('submit', async funct
     
     try {
         const formData = new FormData(this);
-        const res = await fetch(this.action, {
+        const res = await fetch(this.getAttribute('action'), {
             method: 'POST',
             body: formData
         });
