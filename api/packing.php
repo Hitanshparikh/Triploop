@@ -50,46 +50,63 @@ switch ($action) {
     case 'init':
         // Initialize default packing categories for a trip
         if (!$tripId) jsonResponse(['error' => 'Trip ID required'], 400);
-        $defaults = [
-            'Documents' => [
-                ['name' => 'Passport', 'checked' => false],
-                ['name' => 'Visa (if required)', 'checked' => false],
-                ['name' => 'Travel Insurance', 'checked' => false],
-                ['name' => 'Flight Tickets', 'checked' => false],
-                ['name' => 'Hotel Confirmation', 'checked' => false],
-                ['name' => 'ID Card / Driving License', 'checked' => false],
-            ],
-            'Clothing' => [
-                ['name' => 'T-shirts / Tops', 'checked' => false],
-                ['name' => 'Pants / Shorts', 'checked' => false],
-                ['name' => 'Underwear', 'checked' => false],
-                ['name' => 'Socks', 'checked' => false],
-                ['name' => 'Jacket / Sweater', 'checked' => false],
-                ['name' => 'Sleepwear', 'checked' => false],
-                ['name' => 'Comfortable Shoes', 'checked' => false],
-            ],
-            'Electronics' => [
-                ['name' => 'Phone + Charger', 'checked' => false],
-                ['name' => 'Power Bank', 'checked' => false],
-                ['name' => 'Camera', 'checked' => false],
-                ['name' => 'Headphones', 'checked' => false],
-                ['name' => 'Universal Adapter', 'checked' => false],
-            ],
-            'Toiletries' => [
-                ['name' => 'Toothbrush & Toothpaste', 'checked' => false],
-                ['name' => 'Shampoo & Body Wash', 'checked' => false],
-                ['name' => 'Sunscreen', 'checked' => false],
-                ['name' => 'Deodorant', 'checked' => false],
-                ['name' => 'Medications', 'checked' => false],
-            ],
-            'Essentials' => [
-                ['name' => 'Wallet / Cash', 'checked' => false],
-                ['name' => 'Backpack / Day Bag', 'checked' => false],
-                ['name' => 'Water Bottle', 'checked' => false],
-                ['name' => 'Snacks', 'checked' => false],
-                ['name' => 'Sunglasses', 'checked' => false],
-            ],
-        ];
+        
+        $trip = db()->fetch("SELECT * FROM trips WHERE id=? AND user_id=?", [$tripId, $userId]);
+        if (!$trip) jsonResponse(['error' => 'Trip not found'], 404);
+
+        $defaults = [];
+        
+        // Try to generate contextual packing list with Gemini
+        $prompt = "Create a packing list for a trip to {$trip['destination']} from {$trip['start_date']} to {$trip['end_date']}. The travel type is {$trip['travel_type']} and the mood is {$trip['mood']}. Return a JSON object where keys are categories (Documents, Clothing, Electronics, Toiletries, Essentials) and values are arrays of objects with 'name' (string) and 'checked' (boolean, false). Keep items concise.";
+        
+        $system = "You are an expert travel packer. Provide highly specific items based on the destination's likely weather and the trip's mood.";
+        $geminiList = callGemini($prompt, $system, true);
+        
+        if ($geminiList && is_array($geminiList) && isset($geminiList['Clothing'])) {
+            $defaults = $geminiList;
+        } else {
+            // Fallback defaults
+            $defaults = [
+                'Documents' => [
+                    ['name' => 'Passport', 'checked' => false],
+                    ['name' => 'Visa (if required)', 'checked' => false],
+                    ['name' => 'Travel Insurance', 'checked' => false],
+                    ['name' => 'Flight Tickets', 'checked' => false],
+                    ['name' => 'Hotel Confirmation', 'checked' => false],
+                    ['name' => 'ID Card / Driving License', 'checked' => false],
+                ],
+                'Clothing' => [
+                    ['name' => 'T-shirts / Tops', 'checked' => false],
+                    ['name' => 'Pants / Shorts', 'checked' => false],
+                    ['name' => 'Underwear', 'checked' => false],
+                    ['name' => 'Socks', 'checked' => false],
+                    ['name' => 'Jacket / Sweater', 'checked' => false],
+                    ['name' => 'Sleepwear', 'checked' => false],
+                    ['name' => 'Comfortable Shoes', 'checked' => false],
+                ],
+                'Electronics' => [
+                    ['name' => 'Phone + Charger', 'checked' => false],
+                    ['name' => 'Power Bank', 'checked' => false],
+                    ['name' => 'Camera', 'checked' => false],
+                    ['name' => 'Headphones', 'checked' => false],
+                    ['name' => 'Universal Adapter', 'checked' => false],
+                ],
+                'Toiletries' => [
+                    ['name' => 'Toothbrush & Toothpaste', 'checked' => false],
+                    ['name' => 'Shampoo & Body Wash', 'checked' => false],
+                    ['name' => 'Sunscreen', 'checked' => false],
+                    ['name' => 'Deodorant', 'checked' => false],
+                    ['name' => 'Medications', 'checked' => false],
+                ],
+                'Essentials' => [
+                    ['name' => 'Wallet / Cash', 'checked' => false],
+                    ['name' => 'Backpack / Day Bag', 'checked' => false],
+                    ['name' => 'Water Bottle', 'checked' => false],
+                    ['name' => 'Snacks', 'checked' => false],
+                    ['name' => 'Sunglasses', 'checked' => false],
+                ],
+            ];
+        }
 
         foreach ($defaults as $cat => $items) {
             $existing = db()->fetch("SELECT id FROM packing_lists WHERE trip_id=? AND user_id=? AND category=?", [$tripId, $userId, $cat]);

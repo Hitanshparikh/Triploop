@@ -59,7 +59,23 @@ require_once __DIR__ . '/../includes/sidebar.php';
         </div>
         <div style="display: flex; gap: var(--space-3);">
             <a href="<?= APP_URL ?>/pages/invoice.php?trip_id=<?= $tripId ?>" class="btn btn-secondary"><i data-lucide="download" style="width:16px;height:16px;"></i> Export PDF</a>
-            <button class="btn btn-primary"><i data-lucide="plus" style="width:16px;height:16px;"></i> Add Expense</button>
+        </div>
+    </div>
+
+    <!-- Magic Add Expense Panel -->
+    <div class="glass-card-static" style="margin-bottom: var(--space-8); background: var(--gradient-hero); border-color: rgba(56,189,248,0.2);">
+        <div style="display:flex;align-items:flex-start;gap:var(--space-3);">
+            <i data-lucide="sparkles" style="width:24px;height:24px;color:var(--accent-cyan);margin-top:4px;"></i>
+            <div style="flex:1;">
+                <h4 style="font-size:var(--text-lg);margin-bottom:4px;color:var(--text-primary);">Magic Add Expense</h4>
+                <p style="font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-3);">Type a natural sentence and Gemini AI will automatically extract the vendor, amount, and category.</p>
+                <div style="display:flex;gap:var(--space-2);">
+                    <input type="text" id="magicExpenseInput" class="input-field" placeholder="e.g. Spent 45 euros on a taxi to the Eiffel Tower" style="flex:1;">
+                    <button type="button" class="btn btn-primary" onclick="magicAddExpense(this, <?= $tripId ?>)" style="padding:0 var(--space-4);">
+                        <i data-lucide="wand-2" style="width:16px;height:16px;"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -277,7 +293,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    }
 });
+
+async function magicAddExpense(btn, tripId) {
+    const input = document.getElementById('magicExpenseInput');
+    const prompt = input.value.trim();
+    if (!prompt) return;
+
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader-2" style="width:16px;height:16px;animation:spin 1s linear infinite;"></i>';
+    btn.style.pointerEvents = 'none';
+    lucide.createIcons();
+
+    try {
+        const formData = new FormData();
+        formData.append('action', 'create_magic');
+        formData.append('trip_id', tripId);
+        formData.append('prompt', prompt);
+
+        const res = await fetch(`<?= APP_URL ?>/api/budget.php`, {
+            method: 'POST',
+            body: formData
+        });
+        const json = await res.json();
+        
+        if (json.success && json.expense) {
+            alert(`Added: ${json.expense.amount} ${json.expense.currency} for ${json.expense.vendor} (${json.expense.category})`);
+            window.location.reload();
+        } else {
+            alert('Gemini could not understand the expense. Please try again.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('API error.');
+    } finally {
+        btn.innerHTML = originalHTML;
+        btn.style.pointerEvents = 'auto';
+        lucide.createIcons();
+    }
+}
 </script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

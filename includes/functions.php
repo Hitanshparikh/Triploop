@@ -161,3 +161,68 @@ function getMoodTheme($mood) {
     ];
     return $themes[$mood] ?? $themes['adventure'];
 }
+/**
+ * Call Google Gemini API
+ * @param string $prompt The user prompt
+ * @param string $systemInstruction Optional system instruction to guide the model
+ * @param bool $jsonMode If true, enforces JSON output
+ * @return string|array|null Returns decoded JSON array if $jsonMode is true, otherwise string. Null on failure.
+ */
+function callGemini($prompt, $systemInstruction = null, $jsonMode = false) {
+    if (!defined('GEMINI_API_KEY') || GEMINI_API_KEY === 'PASTE_YOUR_GEMINI_API_KEY_HERE') {
+        return null;
+    }
+
+    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . GEMINI_API_KEY;
+
+    $payload = [
+        'contents' => [
+            [
+                'parts' => [
+                    ['text' => $prompt]
+                ]
+            ]
+        ]
+    ];
+
+    if ($systemInstruction) {
+        $payload['systemInstruction'] = [
+            'parts' => [
+                ['text' => $systemInstruction]
+            ]
+        ];
+    }
+
+    if ($jsonMode) {
+        $payload['generationConfig'] = [
+            'responseMimeType' => 'application/json'
+        ];
+    }
+
+    $curl = curl_init($url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
+    curl_setopt($curl, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json'
+    ]);
+
+    $response = curl_exec($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+
+    if ($error) return null;
+
+    $data = json_decode($response, true);
+    
+    if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+        $text = $data['candidates'][0]['content']['parts'][0]['text'];
+        if ($jsonMode) {
+            $parsed = json_decode($text, true);
+            return $parsed ? $parsed : null;
+        }
+        return $text;
+    }
+
+    return null;
+}

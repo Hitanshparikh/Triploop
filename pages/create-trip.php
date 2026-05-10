@@ -99,6 +99,22 @@ textarea.input-field{resize:vertical;min-height:100px;}
 
     <!-- STEP 1: Basics -->
     <div class="form-panel active" id="panel1">
+      <div class="glass-card-static" style="margin-bottom:var(--space-6);background:var(--gradient-hero);border-color:rgba(56,189,248,0.2);">
+        <div style="display:flex;align-items:flex-start;gap:var(--space-3);">
+          <i data-lucide="sparkles" style="width:24px;height:24px;color:var(--accent-cyan);margin-top:4px;"></i>
+          <div style="flex:1;">
+            <h4 style="font-size:var(--text-lg);margin-bottom:4px;color:var(--text-primary);">Magic Auto-fill</h4>
+            <p style="font-size:var(--text-sm);color:var(--text-secondary);margin-bottom:var(--space-3);">Describe your dream trip in one sentence, and Gemini AI will fill out everything for you.</p>
+            <div style="display:flex;gap:var(--space-2);">
+              <input type="text" id="magicInput" class="input-field" placeholder="e.g. A romantic weekend in Paris for our anniversary, mid budget." style="flex:1;">
+              <button type="button" class="btn btn-primary" onclick="magicAutofill(this)" style="padding:0 var(--space-4);">
+                <i data-lucide="wand-2" style="width:16px;height:16px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="glass-card-static">
         <h3 style="margin-bottom:var(--space-6);">Trip Basics</h3>
         <div class="input-group">
@@ -411,6 +427,60 @@ document.addEventListener('click', (e) => {
         destDropdown.style.display = 'none';
     }
 });
+
+async function magicAutofill(btn) {
+    const input = document.getElementById('magicInput');
+    const prompt = input.value.trim();
+    if (!prompt) return;
+
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader-2" style="width:16px;height:16px;animation:spin 1s linear infinite;"></i>';
+    btn.style.pointerEvents = 'none';
+    lucide.createIcons();
+
+    try {
+        const res = await fetch(`<?= APP_URL ?>/api/external.php`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ action: 'magic_trip_parse', prompt: prompt })
+        });
+        const json = await res.json();
+        
+        if (json.success && json.data) {
+            const data = json.data;
+            if (data.name) document.querySelector('[name="name"]').value = data.name;
+            if (data.destination) document.getElementById('destinationInput').value = data.destination;
+            if (data.start_date) document.querySelector('[name="start_date"]').value = data.start_date;
+            if (data.end_date) document.querySelector('[name="end_date"]').value = data.end_date;
+            if (data.budget) document.querySelector('[name="budget"]').value = data.budget;
+            
+            if (data.travel_type) {
+                const el = document.querySelector(`.type-btn[data-type="${data.travel_type}"]`);
+                if (el) selectType(el);
+            }
+            if (data.mood) {
+                const el = document.querySelector(`.mood-btn-sm[data-mood="${data.mood}"]`);
+                if (el) selectMood(el);
+            }
+            if (data.budget_level) {
+                const select = document.querySelector('[name="budget_level"]');
+                select.value = data.budget_level;
+            }
+            
+            // Advance to step 2 automatically to show magic
+            goStep(2);
+        } else {
+            alert('Could not understand prompt. Please try again.');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('API error.');
+    } finally {
+        btn.innerHTML = originalHTML;
+        btn.style.pointerEvents = 'auto';
+        lucide.createIcons();
+    }
+}
 
 document.getElementById('createTripForm').addEventListener('submit', async function(e) {
     e.preventDefault();

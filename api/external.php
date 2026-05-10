@@ -140,6 +140,21 @@ switch ($action) {
         echo json_encode(['success' => true, 'data' => $result]);
         break;
 
+    case 'magic_trip_parse':
+        $input = json_decode(file_get_contents('php://input'), true);
+        $prompt = $input['prompt'] ?? '';
+        
+        $system = 'You are an AI travel assistant. Parse the user\'s natural language trip description and return a JSON object with EXACTLY these keys: "name" (a catchy title), "destination" (city/country), "start_date" (YYYY-MM-DD, assume future dates from today), "end_date" (YYYY-MM-DD), "travel_type" (must be one of: solo, couple, family, friends, business, group), "mood" (must be one of: adventure, romantic, healing, luxury, party, spiritual, productivity, solo), "budget" (integer estimate), "budget_level" (must be one of: budget, mid, luxury). Today is ' . date('Y-m-d') . '.';
+        
+        $parsed = callGemini($prompt, $system, true);
+        
+        if ($parsed) {
+            echo json_encode(['success' => true, 'data' => $parsed]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Could not parse magic prompt.']);
+        }
+        break;
+
     default:
         echo json_encode(['success' => false, 'error' => 'Unknown action: ' . $action]);
         break;
