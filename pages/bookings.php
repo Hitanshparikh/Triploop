@@ -5,7 +5,7 @@ requireAuth();
 // Pre-fill location if coming from another page
 $location = input('location', '');
 $userId = currentUserId();
-$latestTrip = db()->fetchOne("SELECT id FROM trips WHERE user_id = ? ORDER BY created_at DESC LIMIT 1", [$userId]);
+$latestTrip = db()->fetch("SELECT id FROM trips WHERE user_id = ? ORDER BY created_at DESC LIMIT 1", [$userId]);
 $latestTripId = $latestTrip ? $latestTrip['id'] : 0;
 ?>
 <!DOCTYPE html>
