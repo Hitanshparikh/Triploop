@@ -1,0 +1,730 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+.r{background:#070D1B;color:#DDE2F0;font-family:'DM Sans',sans-serif;min-height:600px;position:relative;overflow:hidden}
+.bgg{position:absolute;inset:0;background-image:linear-gradient(rgba(60,100,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(60,100,255,.035) 1px,transparent 1px);background-size:36px 36px;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;opacity:.15}
+.o1{width:500px;height:500px;background:radial-gradient(circle,#3C64FF,transparent 70%);top:-150px;right:-100px}
+.o2{width:350px;height:350px;background:radial-gradient(circle,#9333EA,transparent 70%);bottom:-80px;left:-60px}
+.o3{width:220px;height:220px;background:radial-gradient(circle,#06B6D4,transparent 70%);top:45%;left:35%}
+.shell{position:relative;z-index:1}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px 0}
+.logo{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.5px}
+.logo span{color:#4C7BFF}
+.ntabs{display:flex;gap:4px}
+.ntab{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid transparent;transition:all .2s;color:#6B7899}
+.ntab:hover{color:#DDE2F0;background:rgba(255,255,255,.05)}
+.ntab.on{background:rgba(76,123,255,.15);border-color:rgba(76,123,255,.35);color:#7BA9FF}
+.avt{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4C7BFF,#9333EA);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer}
+
+.page{display:none}.page.on{display:block}
+
+/* DASHBOARD */
+.hero{padding:24px 24px 16px}
+.greet{font-size:11px;color:#4C7BFF;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+.htitle{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1.1;letter-spacing:-1px}
+.htitle em{font-style:normal;color:#4C7BFF}
+.hsub{color:#6B7899;font-size:13px;margin-top:6px}
+
+.msec{padding:0 24px 16px}
+.slbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#445068;margin-bottom:10px;font-weight:500}
+.mpills{display:flex;gap:6px;flex-wrap:wrap}
+.mpill{display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:50px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);cursor:pointer;font-size:12px;transition:all .2s;color:#6B7899}
+.mpill:hover{background:rgba(255,255,255,.07);color:#DDE2F0;transform:translateY(-1px)}
+.mpill.on{border-color:var(--mc);background:rgba(var(--mr),.12);color:#DDE2F0}
+.mdot{width:7px;height:7px;border-radius:50%;background:var(--mc)}
+
+.grid2{display:grid;grid-template-columns:1fr 300px;gap:14px;padding:0 24px 24px}
+.lcol{display:flex;flex-direction:column;gap:14px}
+.rcol{display:flex;flex-direction:column;gap:14px}
+
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:18px}
+.ctitle{font-size:12px;font-weight:500;color:#6B7899;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.ctitle i{color:#4C7BFF}
+
+/* GLOBE */
+.globe-wrap{width:100%;height:260px;display:flex;align-items:center;justify-content:center;position:relative}
+canvas#globe{border-radius:50%;cursor:grab}
+canvas#globe:active{cursor:grabbing}
+.glbl{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:0 4px}
+.gstat{text-align:center}
+.gstat .v{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#DDE2F0}
+.gstat .l{font-size:10px;color:#445068;margin-top:1px}
+.gdiv{width:1px;height:36px;background:rgba(255,255,255,.07);margin:auto 0}
+
+/* ITINERARY */
+.dtabs{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap}
+.dtab{padding:5px 11px;border-radius:10px;font-size:11px;cursor:pointer;border:1px solid rgba(255,255,255,.07);color:#445068;transition:all .2s}
+.dtab.on{background:rgba(76,123,255,.15);border-color:rgba(76,123,255,.3);color:#7BA9FF}
+.act{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.act:last-child{border-bottom:none}
+.atm{font-size:10px;color:#445068;width:38px;flex-shrink:0}
+.aico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ainf .nm{font-size:12px;font-weight:500;color:#C8D0E4}
+.ainf .dt{font-size:10px;color:#445068;margin-top:1px}
+.abadge{margin-left:auto;padding:2px 9px;border-radius:20px;font-size:10px;flex-shrink:0}
+.bb{background:rgba(76,123,255,.15);color:#7BA9FF}
+.bp{background:rgba(147,51,234,.15);color:#C084FC}
+.bt{background:rgba(6,182,212,.15);color:#22D3EE}
+.bo{background:rgba(251,146,60,.15);color:#FB923C}
+.bg{background:rgba(52,211,153,.15);color:#34D399}
+
+/* SIM */
+.sring{display:flex;justify-content:center;padding:6px 0}
+.smet{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.sm{display:flex;align-items:center;gap:8px}
+.sml{font-size:11px;color:#6B7899;width:90px;flex-shrink:0}
+.smb{flex:1;height:4px;background:rgba(255,255,255,.07);border-radius:10px;overflow:hidden}
+.smf{height:100%;border-radius:10px;transition:width .7s ease}
+.smv{font-size:11px;color:#445068;width:26px;text-align:right}
+
+/* BUDGET */
+.btotal{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#DDE2F0;margin-bottom:2px}
+.bsub{font-size:11px;color:#445068;margin-bottom:12px}
+.brows{display:flex;flex-direction:column;gap:7px}
+.br{display:flex;align-items:center;gap:7px}
+.brl{font-size:11px;color:#6B7899;width:70px}
+.brt{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:10px;overflow:hidden}
+.brp{height:100%;border-radius:10px;transition:width .7s ease}
+.bra{font-size:11px;color:#445068;width:42px;text-align:right}
+
+/* AI card */
+.aic{background:linear-gradient(135deg,rgba(76,123,255,.1),rgba(147,51,234,.07));border:1px solid rgba(76,123,255,.2);border-radius:18px;padding:16px}
+.aih{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.aid{width:7px;height:7px;border-radius:50%;background:#4C7BFF;animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.ail{font-size:11px;font-weight:500;color:#7BA9FF}
+.aim{font-size:12px;color:#8A94B0;line-height:1.6}
+.aim strong{color:#DDE2F0;font-weight:500}
+
+.ctabtn{width:100%;padding:11px;border-radius:12px;background:linear-gradient(135deg,#4C7BFF,#7C3AED);border:none;color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:10px;transition:all .2s;letter-spacing:.2px}
+.ctabtn:hover{transform:translateY(-2px)}
+
+/* === MY TRIPS PAGE === */
+.tpage{padding:24px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.tcard{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .2s}
+.tcard:hover{border-color:rgba(76,123,255,.35);transform:translateY(-2px)}
+.tcard.sel{border-color:#4C7BFF;background:rgba(76,123,255,.08)}
+.tcimg{height:110px;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative}
+.tctag{position:absolute;top:8px;right:8px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+.tag-up{background:rgba(52,211,153,.2);color:#34D399}
+.tag-plan{background:rgba(76,123,255,.2);color:#7BA9FF}
+.tag-done{background:rgba(100,100,120,.2);color:#8A94B0}
+.tcb{padding:12px}
+.tcn{font-size:13px;font-weight:500;color:#C8D0E4;margin-bottom:3px}
+.tcd{font-size:11px;color:#445068}
+.tcst{display:flex;gap:10px;margin-top:8px}
+.tcs{font-size:10px;color:#6B7899}
+.tcs span{color:#A0A8C0;font-weight:500}
+.trip-detail{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px;margin-top:14px}
+.tdn{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#DDE2F0;margin-bottom:4px}
+.tdm{font-size:12px;color:#6B7899;margin-bottom:14px}
+.tdgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.tdstat{background:rgba(255,255,255,.04);border-radius:10px;padding:10px;text-align:center}
+.tdstat .v{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#DDE2F0}
+.tdstat .l{font-size:10px;color:#445068;margin-top:1px}
+.progbar{height:6px;background:rgba(255,255,255,.07);border-radius:10px;overflow:hidden;margin:6px 0 2px}
+.progfill{height:100%;background:linear-gradient(90deg,#4C7BFF,#7C3AED);border-radius:10px}
+.progmeta{display:flex;justify-content:space-between;font-size:10px;color:#445068}
+
+/* === EXPLORE PAGE === */
+.epage{padding:24px}
+.esearch{display:flex;gap:8px;margin-bottom:16px}
+.esearch input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:9px 14px;color:#DDE2F0;font-family:'DM Sans',sans-serif;font-size:13px;outline:none}
+.esearch input::placeholder{color:#445068}
+.esearch input:focus{border-color:rgba(76,123,255,.5)}
+.efilter{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.efpill{padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid rgba(255,255,255,.08);color:#6B7899;background:rgba(255,255,255,.03);transition:all .2s}
+.efpill:hover{color:#DDE2F0;background:rgba(255,255,255,.07)}
+.efpill.on{background:rgba(76,123,255,.15);border-color:rgba(76,123,255,.35);color:#7BA9FF}
+.egrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.ecard{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.ecard:hover{border-color:rgba(76,123,255,.3);transform:translateY(-2px)}
+.ecard.saved{border-color:rgba(52,211,153,.4)}
+.ecimg{height:90px;display:flex;align-items:center;justify-content:center;font-size:36px}
+.ecb{padding:10px}
+.ecn{font-size:12px;font-weight:500;color:#C8D0E4;margin-bottom:2px}
+.ecc{font-size:10px;color:#445068;margin-bottom:6px}
+.ecmeta{display:flex;justify-content:space-between;align-items:center}
+.ecrat{font-size:11px;color:#FB923C}
+.ecsave{font-size:10px;padding:3px 8px;border-radius:20px;background:rgba(76,123,255,.15);color:#7BA9FF;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.ecsave.saved{background:rgba(52,211,153,.15);color:#34D399}
+
+/* MEMORIES PAGE */
+.mpage{padding:24px}
+.mtime{display:flex;flex-direction:column;gap:0;margin-top:16px}
+.mentry{display:flex;gap:14px;position:relative;padding-bottom:20px}
+.mentry:last-child{padding-bottom:0}
+.mline{display:flex;flex-direction:column;align-items:center}
+.mdot2{width:10px;height:10px;border-radius:50%;background:#4C7BFF;flex-shrink:0;margin-top:4px}
+.mvert{flex:1;width:1px;background:rgba(76,123,255,.2);margin-top:4px}
+.mentry:last-child .mvert{display:none}
+.mcont{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;flex:1}
+.mdate{font-size:10px;color:#4C7BFF;font-weight:500;margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px}
+.mtitle{font-size:13px;font-weight:500;color:#C8D0E4;margin-bottom:6px}
+.mtext{font-size:12px;color:#6B7899;line-height:1.6}
+.micons{display:flex;gap:6px;margin-top:8px}
+.micon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,255,255,.05)}
+.mlikes{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:#445068}
+.mlbtn{background:none;border:none;cursor:pointer;color:#445068;font-size:14px;transition:all .2s;padding:0}
+.mlbtn:hover{color:#FB923C}
+.mlbtn.liked{color:#FB923C}
+
+/* PACKING */
+.pkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.pkit{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:9px;cursor:pointer;transition:all .2s}
+.pkit:hover{background:rgba(255,255,255,.06)}
+.pkit.chk{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.05)}
+.pkbox{width:15px;height:15px;border-radius:4px;border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.pkit.chk .pkbox{background:#34D399;border-color:#34D399}
+.pkn{font-size:12px;color:#A0A8C0}
+.pkit.chk .pkn{color:#6B7899;text-decoration:line-through}
+.pkprog{display:flex;align-items:center;gap:10px;margin-top:12px}
+.pkpb{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:10px;overflow:hidden}
+.pkpf{height:100%;background:linear-gradient(90deg,#34D399,#06B6D4);border-radius:10px;transition:width .4s}
+.pkpt{font-size:11px;color:#34D399;font-weight:500}
+
+.flbadge{display:inline-flex;align-items:center;gap:4px;position:absolute;top:8px;left:8px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px 8px;font-size:10px;color:#DDE2F0}
+</style>
+
+<h2 class="sr-only">JourneyOS — fully interactive AI travel operating system with globe view, itinerary builder, trip explorer, memories timeline, and packing list</h2>
+
+<div class="r">
+  <div class="bgg"></div>
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="shell">
+
+    <nav class="nav">
+      <div class="logo">Journey<span>OS</span></div>
+      <div class="ntabs">
+        <div class="ntab on" onclick="goPage('dash',this)">Dashboard</div>
+        <div class="ntab" onclick="goPage('trips',this)">My Trips</div>
+        <div class="ntab" onclick="goPage('explore',this)">Explore</div>
+        <div class="ntab" onclick="goPage('memories',this)">Memories</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <i class="ti ti-bell" style="font-size:17px;color:#445068;cursor:pointer" aria-hidden="true"></i>
+        <div class="avt">RK</div>
+      </div>
+    </nav>
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dash" class="page on">
+      <div class="hero">
+        <div class="greet">Good evening, Rahul ✦</div>
+        <div class="htitle">Your next <em>adventure</em><br>starts here.</div>
+        <div class="hsub" id="moodsub">Tokyo · 18 days away · Adventure mode active</div>
+      </div>
+
+      <div class="msec">
+        <div class="slbl">Travel Mood Engine</div>
+        <div class="mpills" id="mpills">
+          <div class="mpill on" style="--mc:#FB923C;--mr:251,146,60" onclick="setMood(this,'adventure')" data-m="adventure"><div class="mdot"></div>Adventure</div>
+          <div class="mpill" style="--mc:#F472B6;--mr:244,114,182" onclick="setMood(this,'romantic')" data-m="romantic"><div class="mdot"></div>Romantic</div>
+          <div class="mpill" style="--mc:#818CF8;--mr:129,140,248" onclick="setMood(this,'healing')" data-m="healing"><div class="mdot"></div>Solo Healing</div>
+          <div class="mpill" style="--mc:#A78BFA;--mr:167,139,250" onclick="setMood(this,'spiritual')" data-m="spiritual"><div class="mdot"></div>Spiritual</div>
+          <div class="mpill" style="--mc:#22D3EE;--mr:34,211,238" onclick="setMood(this,'luxury')" data-m="luxury"><div class="mdot"></div>Luxury</div>
+          <div class="mpill" style="--mc:#34D399;--mr:52,211,153" onclick="setMood(this,'workcation')" data-m="workcation"><div class="mdot"></div>Workcation</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="lcol">
+          <div class="card">
+            <div class="ctitle"><i class="ti ti-globe" aria-hidden="true"></i>Multi-city Globe Route &mdash; drag to rotate</div>
+            <div class="globe-wrap">
+              <canvas id="globe" width="240" height="240"></canvas>
+            </div>
+            <div class="glbl">
+              <div class="gstat"><div class="v">12</div><div class="l">Days</div></div>
+              <div class="gdiv"></div>
+              <div class="gstat"><div class="v">4</div><div class="l">Cities</div></div>
+              <div class="gdiv"></div>
+              <div class="gstat"><div class="v" id="mlabel">🔥 Bold</div><div class="l">Mood</div></div>
+              <div class="gdiv"></div>
+              <div class="gstat"><div class="v">3</div><div class="l">Friends</div></div>
+              <div class="gdiv"></div>
+              <div class="gstat"><div class="v">23</div><div class="l">Activities</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ctitle"><i class="ti ti-calendar-event" aria-hidden="true"></i>Itinerary Builder</div>
+            <div class="dtabs" id="dtabs">
+              <div class="dtab on" onclick="selDay(this,0)">Day 1</div>
+              <div class="dtab" onclick="selDay(this,1)">Day 2</div>
+              <div class="dtab" onclick="selDay(this,2)">Day 3</div>
+              <div class="dtab" onclick="selDay(this,3)">Day 4</div>
+              <div class="dtab" onclick="selDay(this,4)">Day 5</div>
+            </div>
+            <div id="actlist"></div>
+          </div>
+
+          <!-- PACKING inline -->
+          <div class="card">
+            <div class="ctitle"><i class="ti ti-backpack" aria-hidden="true"></i>Packing Checklist &mdash; Tokyo Trip</div>
+            <div id="pklist" class="pkgrid"></div>
+            <div class="pkprog">
+              <div class="pkpb"><div class="pkpf" id="pkfill" style="width:0%"></div></div>
+              <div class="pkpt" id="pkpct">0% packed</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rcol">
+          <div class="card">
+            <div class="ctitle"><i class="ti ti-activity" aria-hidden="true"></i>Trip Health Simulation</div>
+            <div class="sring">
+              <svg viewBox="0 0 110 110" width="110" height="110">
+                <circle cx="55" cy="55" r="46" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9"/>
+                <circle id="sring" cx="55" cy="55" r="46" fill="none" stroke="#4C7BFF" stroke-width="9"
+                  stroke-dasharray="289" stroke-dashoffset="72" stroke-linecap="round"
+                  transform="rotate(-90 55 55)" style="transition:stroke-dashoffset .7s,stroke .4s"/>
+                <text x="55" y="51" text-anchor="middle" fill="#DDE2F0" font-size="24" font-weight="700" font-family="'Syne',sans-serif" id="sval">75</text>
+                <text x="55" y="64" text-anchor="middle" fill="#445068" font-size="9" font-family="'DM Sans',sans-serif">health score</text>
+              </svg>
+            </div>
+            <div class="smet">
+              <div class="sm"><div class="sml">Exhaustion</div><div class="smb"><div class="smf" id="s1" style="width:62%;background:#FB923C"></div></div><div class="smv" id="sv1">62%</div></div>
+              <div class="sm"><div class="sml">Budget burn</div><div class="smb"><div class="smf" id="s2" style="width:48%;background:#4C7BFF"></div></div><div class="smv" id="sv2">48%</div></div>
+              <div class="sm"><div class="sml">Crowd risk</div><div class="smb"><div class="smf" id="s3" style="width:35%;background:#22D3EE"></div></div><div class="smv" id="sv3">35%</div></div>
+              <div class="sm"><div class="sml">Weather risk</div><div class="smb"><div class="smf" id="s4" style="width:20%;background:#34D399"></div></div><div class="smv" id="sv4">20%</div></div>
+              <div class="sm"><div class="sml">Travel fatigue</div><div class="smb"><div class="smf" id="s5" style="width:44%;background:#A78BFA"></div></div><div class="smv" id="sv5">44%</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="ctitle"><i class="ti ti-wallet" aria-hidden="true"></i>Budget Planner</div>
+            <div class="btotal" id="budtotal">₹2,14,500</div>
+            <div class="bsub">of ₹2,50,000 · 3 people splitting</div>
+            <div class="brows" id="budrows"></div>
+          </div>
+
+          <div class="aic">
+            <div class="aih"><div class="aid"></div><div class="ail">AI Travel Companion</div></div>
+            <div class="aim" id="aitext"><strong>Adventure mode active.</strong> Day 3 Fuji + Hakone is peak intensity — consider adding a recovery morning on Day 4 before Akihabara for sustained energy.</div>
+            <button class="ctabtn" onclick="sendPrompt('Help me optimize my JourneyOS Tokyo trip — I am in Adventure mood. Give me AI-powered itinerary suggestions, stress predictions, and budget tips.')">Ask AI to optimize trip ↗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MY TRIPS PAGE -->
+    <div id="page-trips" class="page">
+      <div class="tpage">
+        <div class="slbl">My Trips</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#DDE2F0;margin-top:4px">All Journeys</div>
+        <div class="tgrid" id="tripgrid"></div>
+        <div id="tripdetail" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- EXPLORE PAGE -->
+    <div id="page-explore" class="page">
+      <div class="epage">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#DDE2F0;margin-bottom:14px">Explore Destinations</div>
+        <div class="esearch">
+          <input type="text" id="searchinp" placeholder="Search cities, countries, experiences..." oninput="filterExplore()">
+        </div>
+        <div class="efilter" id="efilters">
+          <div class="efpill on" onclick="setFilter(this,'all')" data-f="all">All</div>
+          <div class="efpill" onclick="setFilter(this,'asia')" data-f="asia">Asia</div>
+          <div class="efpill" onclick="setFilter(this,'europe')" data-f="europe">Europe</div>
+          <div class="efpill" onclick="setFilter(this,'adventure')" data-f="adventure">Adventure</div>
+          <div class="efpill" onclick="setFilter(this,'spiritual')" data-f="spiritual">Spiritual</div>
+          <div class="efpill" onclick="setFilter(this,'luxury')" data-f="luxury">Luxury</div>
+        </div>
+        <div class="egrid" id="explgrid"></div>
+      </div>
+    </div>
+
+    <!-- MEMORIES PAGE -->
+    <div id="page-memories" class="page">
+      <div class="mpage">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#DDE2F0;margin-bottom:4px">Memory Timeline</div>
+        <div style="font-size:12px;color:#6B7899;margin-bottom:16px">AI-curated cinematic travel stories</div>
+        <div class="mtime" id="memtl"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const MOODS={
+  adventure:{label:"🔥 Bold",score:75,sub:"Tokyo · 18 days away · Adventure mode",metrics:[62,48,35,20,44],ai:"<strong>Adventure mode active.</strong> Day 3 Fuji + Hakone is peak intensity — add a recovery morning on Day 4 before Akihabara for sustained energy.",color:"#FB923C",accentRgb:"251,146,60"},
+  romantic:{label:"💕 Soft",score:88,sub:"Tokyo · 18 days away · Romantic mode",metrics:[30,55,25,22,28],ai:"<strong>Romantic mode.</strong> Shinjuku Gyoen at golden hour and a private ryokan onsen for two are top picks. I've softened the pace significantly.",color:"#F472B6",accentRgb:"244,114,182"},
+  healing:{label:"🌿 Calm",score:92,sub:"Tokyo · 18 days away · Healing mode",metrics:[20,40,18,15,22],ai:"<strong>Solo healing mode.</strong> Crowd-heavy spots deprioritized. Sunrise temple visits and journaling blocks added every morning.",color:"#818CF8",accentRgb:"129,140,248"},
+  spiritual:{label:"🕊️ Sacred",score:85,sub:"Tokyo · 18 days away · Spiritual mode",metrics:[28,38,20,18,25],ai:"<strong>Spiritual journey.</strong> Meiji Shrine, Fushimi Inari at dawn, Zen gardens weighted heavily. Silent reflection time blocked each evening.",color:"#A78BFA",accentRgb:"167,139,250"},
+  luxury:{label:"✨ Elite",score:82,sub:"Tokyo · 18 days away · Luxury mode",metrics:[35,85,40,22,32],ai:"<strong>Luxury mode.</strong> Hotels upgraded to 5-star ryokans. Michelin dining added. Budget at 85% — want me to optimize?",color:"#22D3EE",accentRgb:"34,211,238"},
+  workcation:{label:"💼 Focus",score:79,sub:"Tokyo · 18 days away · Workcation mode",metrics:[42,45,30,20,38],ai:"<strong>Workcation set.</strong> Mornings free for deep work. Co-working in Shibuya + Kyoto pinned. Afternoon activities capped at 3 hours.",color:"#34D399",accentRgb:"52,211,153"}
+};
+
+const DAYS=[
+  [{t:"07:30",e:"☀️",bg:"#FB923C22",n:"Sunrise at Senso-ji Temple",d:"Asakusa · 45 min walk",badge:"Culture",bc:"bo"},
+   {t:"10:00",e:"🏯",bg:"#4C7BFF22",n:"Imperial Palace Gardens",d:"Chiyoda · skip crowds before noon",badge:"Landmark",bc:"bb"},
+   {t:"13:30",e:"🍜",bg:"#9333EA22",n:"Ichiran Ramen — solo booth",d:"Harajuku · AI pick",badge:"Dining",bc:"bp"},
+   {t:"16:00",e:"🎮",bg:"#22D3EE22",n:"Akihabara explorer walk",d:"Electric Town · high energy",badge:"Adventure",bc:"bt"}],
+  [{t:"08:00",e:"⛩️",bg:"#9333EA22",n:"Meiji Shrine — forest path",d:"Harajuku · peaceful morning",badge:"Spiritual",bc:"bp"},
+   {t:"11:00",e:"🛍️",bg:"#FB923C22",n:"Takeshita Street market",d:"Harajuku · budget ₹3,000",badge:"Shopping",bc:"bo"},
+   {t:"15:00",e:"🌆",bg:"#4C7BFF22",n:"Shibuya Sky observation",d:"Book 1 day ahead · dusk views",badge:"Views",bc:"bb"},
+   {t:"19:00",e:"🍣",bg:"#22D3EE22",n:"Tsukiji market dinner",d:"Best tuna · ₹2,500",badge:"Dining",bc:"bt"}],
+  [{t:"06:00",e:"🗻",bg:"#34D39922",n:"Fuji day trip — early bus",d:"Shinjuku station · 2h ride",badge:"Epic",bc:"bg"},
+   {t:"11:30",e:"♨️",bg:"#9333EA22",n:"Hakone onsen soak",d:"Ryokan style · book ahead",badge:"Wellness",bc:"bp"},
+   {t:"16:00",e:"🚄",bg:"#4C7BFF22",n:"Shinkansen back to Tokyo",d:"⚠️ High fatigue day — AI flag",badge:"Transit",bc:"bb"}],
+  [{t:"09:00",e:"🏙️",bg:"#4C7BFF22",n:"teamLab Planets — immersive",d:"Toyosu · book 3 days ahead",badge:"Art",bc:"bb"},
+   {t:"13:00",e:"🥢",bg:"#FB923C22",n:"Depachika food hall",d:"Isetan Shinjuku · ₹1,800",badge:"Dining",bc:"bo"},
+   {t:"17:00",e:"🌸",bg:"#9333EA22",n:"Shinjuku Gyoen stroll",d:"Golden hour · free entry",badge:"Nature",bc:"bp"},
+   {t:"20:00",e:"🍻",bg:"#22D3EE22",n:"Golden Gai bar hop",d:"Old Tokyo nightlife · ₹2,000",badge:"Nightlife",bc:"bt"}],
+  [{t:"08:00",e:"🎋",bg:"#34D39922",n:"Depart for Kyoto — Shinkansen",d:"280km/h · 2h 15min",badge:"Transit",bc:"bg"},
+   {t:"11:00",e:"⛩️",bg:"#9333EA22",n:"Fushimi Inari — 1000 gates",d:"2h moderate · sunrise photos",badge:"Iconic",bc:"bp"},
+   {t:"15:00",e:"🍵",bg:"#4C7BFF22",n:"Matcha ceremony — Gion",d:"Traditional tea master",badge:"Culture",bc:"bb"}]
+];
+
+const BUDGET=[
+  {l:"Flights",pct:72,amt:"₹72k",c:"#4C7BFF"},
+  {l:"Hotels",pct:55,amt:"₹55k",c:"#9333EA"},
+  {l:"Food",pct:38,amt:"₹38k",c:"#FB923C"},
+  {l:"Activities",pct:30,amt:"₹30k",c:"#22D3EE"},
+  {l:"Shopping",pct:20,amt:"₹20k",c:"#34D399"}
+];
+
+const TRIPS=[
+  {name:"Tokyo Expedition",dates:"Jun 12–24, 2025",emoji:"🗾",days:12,cities:4,budget:"₹2.1L",status:"upcoming",prog:30,friends:3},
+  {name:"Bali Serenity",dates:"Aug 3–10, 2025",emoji:"🌴",days:8,cities:2,budget:"₹85k",status:"planning",prog:10,friends:2},
+  {name:"Europe Odyssey",dates:"Sep 18–Oct 2",emoji:"🏰",days:15,cities:6,budget:"₹3.5L",status:"planning",prog:5,friends:4},
+  {name:"Rajasthan Road Trip",dates:"Nov 8–15",emoji:"🏜️",days:7,cities:4,budget:"₹45k",status:"planning",prog:0,friends:1},
+  {name:"Kerala Backwaters",dates:"Feb 2025",emoji:"🌊",days:5,cities:2,budget:"₹30k",status:"done",prog:100,friends:2}
+];
+
+const EXPLORE=[
+  {n:"Tokyo",c:"Japan",e:"🗾",cat:"asia",tags:"adventure",rat:"4.9",saved:true},
+  {n:"Kyoto",c:"Japan",e:"⛩️",cat:"asia",tags:"spiritual",rat:"4.8",saved:false},
+  {n:"Bali",c:"Indonesia",e:"🌴",cat:"asia",tags:"spiritual",rat:"4.7",saved:false},
+  {n:"Santorini",c:"Greece",e:"🌅",cat:"europe",tags:"luxury",rat:"4.9",saved:false},
+  {n:"Paris",c:"France",e:"🗼",cat:"europe",tags:"luxury",rat:"4.8",saved:false},
+  {n:"Patagonia",c:"Argentina",e:"🏔️",cat:"adventure",tags:"adventure",rat:"4.9",saved:false},
+  {n:"Varanasi",c:"India",e:"🕯️",cat:"asia",tags:"spiritual",rat:"4.6",saved:false},
+  {n:"Amalfi",c:"Italy",e:"🏖️",cat:"europe",tags:"luxury",rat:"4.8",saved:false},
+  {n:"Nepal",c:"Nepal",e:"🏔️",cat:"asia",tags:"adventure",rat:"4.7",saved:false},
+  {n:"Dubai",c:"UAE",e:"✨",cat:"luxury",tags:"luxury",rat:"4.5",saved:false},
+  {n:"Prague",c:"Czech Rep.",e:"🏰",cat:"europe",tags:"adventure",rat:"4.7",saved:false},
+  {n:"Rishikesh",c:"India",e:"🧘",cat:"asia",tags:"spiritual",rat:"4.8",saved:false}
+];
+
+const MEMORIES=[
+  {date:"May 2, 2024 · Kyoto",title:"A ramen shop no map knew about",text:"On the third afternoon in Kyoto, wandering away from the tourist trail, you stumbled into a tiny ramen-ya down an unmarked alley. The owner had been running it for 41 years. No menu — just one bowl, made the old way.",icons:["🍜","📸","🌧️"],likes:24},
+  {date:"May 5, 2024 · Arashiyama",title:"The bamboo forest at golden hour",text:"Every guidebook says go early. You went at 5:30pm instead. The bamboo turned amber. There were maybe four other people. The light through the stalks felt like breathing inside a cathedral.",icons:["🎋","🌅","🦌"],likes:41},
+  {date:"May 8, 2024 · Osaka",title:"Dotonbori at midnight",text:"The neon reflections on the Dotonbori canal hit different at midnight. Street food in hand, surrounded by three languages at once, you felt the city's pulse for the first time.",icons:["🌃","🦞","🎆"],likes:18},
+  {date:"May 10, 2024 · Nara",title:"A deer stole your map",text:"Literally. A Nara deer casually pulled the printed map from your hand and ate a corner of it. You navigated by instinct and found the Kasuga Grand Shrine without the map. Better that way.",icons:["🦌","📄","⛩️"],likes:87}
+];
+
+const PACKING=["Passport & visa","Travel insurance","JR Pass","Pocket WiFi","Yen cash (¥30k)","Universal adapter","Umbrella (always)","Comfortable walking shoes","Light jacket","Sunscreen SPF50","Portable charger","Translation app","Camera & SD cards","Medicines kit","Hotel confirmations"];
+
+let savedExplore=new Set(["Tokyo"]);
+let likedMem=new Set();
+let checkedPack=new Set();
+let curFilter="all";
+let curMood="adventure";
+let selectedTrip=null;
+
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+function setMood(el,m){
+  document.querySelectorAll('.mpill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  curMood=m;
+  const md=MOODS[m];
+  document.getElementById('mlabel').textContent=md.label;
+  document.getElementById('moodsub').textContent=md.sub;
+  document.getElementById('aitext').innerHTML=md.ai;
+  const off=Math.round(289-(289*md.score/100));
+  const r=document.getElementById('sring');
+  r.style.strokeDashoffset=off; r.style.stroke=md.color;
+  document.getElementById('sval').textContent=md.score;
+  md.metrics.forEach((v,i)=>{
+    document.getElementById('s'+(i+1)).style.width=v+'%';
+    document.getElementById('sv'+(i+1)).textContent=v+'%';
+  });
+  updateGlobeAccent(md.color);
+}
+
+function selDay(el,i){
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderActs(i);
+}
+
+function renderActs(i){
+  const c=document.getElementById('actlist');
+  c.innerHTML=DAYS[i].map(a=>`
+    <div class="act">
+      <div class="atm">${a.t}</div>
+      <div class="aico" style="background:${a.bg}">${a.e}</div>
+      <div class="ainf"><div class="nm">${a.n}</div><div class="dt">${a.d}</div></div>
+      <div class="abadge ${a.bc}">${a.badge}</div>
+    </div>`).join('');
+}
+
+function renderBudget(){
+  document.getElementById('budrows').innerHTML=BUDGET.map(b=>`
+    <div class="br">
+      <div class="brl">${b.l}</div>
+      <div class="brt"><div class="brp" style="width:${b.pct}%;background:${b.c};height:100%"></div></div>
+      <div class="bra">${b.amt}</div>
+    </div>`).join('');
+}
+
+function renderPacking(){
+  const c=document.getElementById('pklist');
+  c.innerHTML=PACKING.map((p,i)=>`
+    <div class="pkit${checkedPack.has(i)?' chk':''}" onclick="togglePack(${i},this)">
+      <div class="pkbox">${checkedPack.has(i)?'<i class="ti ti-check" style="font-size:10px;color:#fff"></i>':''}</div>
+      <div class="pkn">${p}</div>
+    </div>`).join('');
+  const pct=Math.round(checkedPack.size/PACKING.length*100);
+  document.getElementById('pkfill').style.width=pct+'%';
+  document.getElementById('pkpct').textContent=pct+'% packed';
+}
+
+function togglePack(i,el){
+  if(checkedPack.has(i))checkedPack.delete(i); else checkedPack.add(i);
+  renderPacking();
+}
+
+function renderTrips(){
+  const g=document.getElementById('tripgrid');
+  const statusLabel={upcoming:'Upcoming',planning:'Planning',done:'Completed'};
+  const statusCls={upcoming:'tag-up',planning:'tag-plan',done:'tag-done'};
+  g.innerHTML=TRIPS.map((t,i)=>`
+    <div class="tcard${selectedTrip===i?' sel':''}" onclick="selectTrip(${i})">
+      <div class="tcimg" style="background:rgba(255,255,255,.03)">${t.emoji}
+        <div class="tctag ${statusCls[t.status]}">${statusLabel[t.status]}</div>
+      </div>
+      <div class="tcb">
+        <div class="tcn">${t.name}</div>
+        <div class="tcd">${t.dates}</div>
+        <div class="tcst">
+          <div class="tcs"><span>${t.days}</span> days</div>
+          <div class="tcs"><span>${t.cities}</span> cities</div>
+          <div class="tcs"><span>${t.budget}</span></div>
+        </div>
+      </div>
+    </div>`).join('');
+  if(selectedTrip!==null)renderTripDetail();
+}
+
+function selectTrip(i){
+  selectedTrip=i; renderTrips();
+}
+
+function renderTripDetail(){
+  const t=TRIPS[selectedTrip];
+  const d=document.getElementById('tripdetail');
+  d.style.display='block';
+  d.innerHTML=`
+    <div class="trip-detail">
+      <div style="font-size:28px;margin-bottom:6px">${t.emoji}</div>
+      <div class="tdn">${t.name}</div>
+      <div class="tdm">${t.dates} &bull; ${t.friends} friends synced</div>
+      <div class="tdgrid">
+        <div class="tdstat"><div class="v">${t.days}</div><div class="l">Days</div></div>
+        <div class="tdstat"><div class="v">${t.cities}</div><div class="l">Cities</div></div>
+        <div class="tdstat"><div class="v">${t.budget}</div><div class="l">Budget</div></div>
+        <div class="tdstat"><div class="v">${t.friends}</div><div class="l">Friends</div></div>
+      </div>
+      <div style="font-size:11px;color:#6B7899;margin-bottom:4px">Planning progress</div>
+      <div class="progbar"><div class="progfill" style="width:${t.prog}%"></div></div>
+      <div class="progmeta"><span>${t.prog}% complete</span><span>${100-t.prog}% remaining</span></div>
+      <button class="ctabtn" style="margin-top:12px" onclick="sendPrompt('Help me plan and optimize my ${t.name} trip with AI. Suggest itinerary, budget tips, and activities.')">Open with AI ↗</button>
+    </div>`;
+}
+
+function filterExplore(){
+  const q=document.getElementById('searchinp').value.toLowerCase();
+  renderExplore(q,curFilter);
+}
+
+function setFilter(el,f){
+  document.querySelectorAll('.efpill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on'); curFilter=f;
+  filterExplore();
+}
+
+function renderExplore(q='',f='all'){
+  const g=document.getElementById('explgrid');
+  const items=EXPLORE.filter(e=>{
+    const mf=f==='all'||e.cat===f||e.tags===f;
+    const mq=!q||e.n.toLowerCase().includes(q)||e.c.toLowerCase().includes(q);
+    return mf&&mq;
+  });
+  if(!items.length){g.innerHTML='<div style="color:#445068;font-size:13px;grid-column:1/-1;padding:20px 0">No destinations match — try a different filter.</div>';return;}
+  g.innerHTML=items.map(e=>`
+    <div class="ecard${savedExplore.has(e.n)?' saved':''}">
+      <div class="ecimg">${e.e}</div>
+      <div class="ecb">
+        <div class="ecn">${e.n}</div>
+        <div class="ecc">${e.c}</div>
+        <div class="ecmeta">
+          <div class="ecrat">★ ${e.rat}</div>
+          <button class="ecsave${savedExplore.has(e.n)?' saved':''}" onclick="toggleSave('${e.n}',this)">${savedExplore.has(e.n)?'Saved':'+ Save'}</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleSave(name,btn){
+  if(savedExplore.has(name)){savedExplore.delete(name);btn.textContent='+ Save';btn.classList.remove('saved');btn.closest('.ecard').classList.remove('saved');}
+  else{savedExplore.add(name);btn.textContent='Saved';btn.classList.add('saved');btn.closest('.ecard').classList.add('saved');}
+}
+
+function renderMemories(){
+  document.getElementById('memtl').innerHTML=MEMORIES.map((m,i)=>`
+    <div class="mentry">
+      <div class="mline"><div class="mdot2"></div><div class="mvert"></div></div>
+      <div class="mcont">
+        <div class="mdate">${m.date}</div>
+        <div class="mtitle">${m.title}</div>
+        <div class="mtext">${m.text}</div>
+        <div class="micons">${m.icons.map(ic=>`<div class="micon">${ic}</div>`).join('')}</div>
+        <div class="mlikes">
+          <button class="mlbtn${likedMem.has(i)?' liked':''}" onclick="toggleLike(${i},this)" aria-label="like">♥</button>
+          <span id="lc${i}">${m.likes+(likedMem.has(i)?1:0)}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleLike(i,btn){
+  const lc=document.getElementById('lc'+i);
+  if(likedMem.has(i)){likedMem.delete(i);btn.classList.remove('liked');lc.textContent=MEMORIES[i].likes;}
+  else{likedMem.add(i);btn.classList.add('liked');lc.textContent=MEMORIES[i].likes+1;}
+}
+
+/* === GLOBE === */
+let globeCanvas,ctx,rot=0,tilt=0.4,isDrag=false,lastX=0,lastY=0,globeColor="#4C7BFF";
+const CITIES=[
+  {name:"Tokyo",lat:35.68,lon:139.69,color:"#4C7BFF"},
+  {name:"Kyoto",lat:35.01,lon:135.76,color:"#A78BFA"},
+  {name:"Osaka",lat:34.69,lon:135.50,color:"#22D3EE"},
+  {name:"Nara",lat:34.69,lon:135.83,color:"#34D399"}
+];
+
+function latlonTo3d(lat,lon,r){
+  const phi=(90-lat)*Math.PI/180;
+  const theta=(lon+rot*180/Math.PI)*Math.PI/180;
+  return{
+    x:r*Math.sin(phi)*Math.cos(theta),
+    y:r*Math.cos(phi)*Math.cos(tilt)-r*Math.sin(phi)*Math.sin(theta)*Math.sin(tilt),
+    z:r*Math.cos(phi)*Math.sin(tilt)+r*Math.sin(phi)*Math.sin(theta)*Math.cos(tilt)
+  };
+}
+
+function project(p,cx,cy,r){
+  return{x:cx+p.x/r*120,y:cy-p.y/r*120,visible:p.z>0};
+}
+
+function updateGlobeAccent(c){globeColor=c;}
+
+function drawGlobe(){
+  if(!ctx)return;
+  const W=240,H=240,cx=120,cy=120,R=100;
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.fillStyle="#0A1128";ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle="rgba(76,123,255,.2)";ctx.lineWidth=1;ctx.stroke();
+
+  for(let la=-75;la<=75;la+=30){
+    ctx.beginPath();
+    let first=true;
+    for(let lo=-180;lo<=180;lo+=5){
+      const p=latlonTo3d(la,lo,R);
+      const pp=project(p,cx,cy,R);
+      if(pp.visible){if(first){ctx.moveTo(pp.x,pp.y);first=false;}else ctx.lineTo(pp.x,pp.y);}
+      else first=true;
+    }
+    ctx.strokeStyle="rgba(76,123,255,.1)";ctx.lineWidth=.5;ctx.stroke();
+  }
+  for(let lo=-180;lo<=180;lo+=30){
+    ctx.beginPath();let first=true;
+    for(let la=-90;la<=90;la+=5){
+      const p=latlonTo3d(la,lo,R);
+      const pp=project(p,cx,cy,R);
+      if(pp.visible){if(first){ctx.moveTo(pp.x,pp.y);first=false;}else ctx.lineTo(pp.x,pp.y);}
+      else first=true;
+    }
+    ctx.strokeStyle="rgba(76,123,255,.1)";ctx.lineWidth=.5;ctx.stroke();
+  }
+
+  const pts=CITIES.map(c=>({...c,p3:latlonTo3d(c.lat,c.lon,R)}));
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1];
+    if(a.p3.z>-20&&b.p3.z>-20){
+      const pa=project(a.p3,cx,cy,R),pb=project(b.p3,cx,cy,R);
+      const steps=30;
+      ctx.beginPath();
+      for(let s=0;s<=steps;s++){
+        const t2=s/steps;
+        const ilat=a.lat+(b.lat-a.lat)*t2;
+        const ilon=a.lon+(b.lon-a.lon)*t2;
+        const arc=Math.sin(t2*Math.PI)*18;
+        const ip=latlonTo3d(ilat,ilon,R+arc);
+        const ipp=project(ip,cx,cy,R);
+        if(ipp.visible){if(s===0)ctx.moveTo(ipp.x,ipp.y);else ctx.lineTo(ipp.x,ipp.y);}
+      }
+      const grad=ctx.createLinearGradient(pa.x,pa.y,pb.x,pb.y);
+      grad.addColorStop(0,a.color);grad.addColorStop(1,b.color);
+      ctx.strokeStyle=grad;ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);
+    }
+  }
+
+  pts.forEach(c=>{
+    const pp=project(c.p3,cx,cy,R);
+    if(pp.visible){
+      ctx.beginPath();ctx.arc(pp.x,pp.y,6,0,Math.PI*2);
+      ctx.fillStyle=c.color+"33";ctx.fill();
+      ctx.beginPath();ctx.arc(pp.x,pp.y,4,0,Math.PI*2);
+      ctx.fillStyle=c.color;ctx.fill();
+      ctx.fillStyle="#DDE2F0";ctx.font="bold 9px 'DM Sans',sans-serif";
+      ctx.fillText(c.name,pp.x+7,pp.y+3);
+    }
+  });
+
+  rot+=0.004;
+  requestAnimationFrame(drawGlobe);
+}
+
+function initGlobe(){
+  globeCanvas=document.getElementById('globe');
+  if(!globeCanvas)return;
+  ctx=globeCanvas.getContext('2d');
+  globeCanvas.addEventListener('mousedown',e=>{isDrag=true;lastX=e.offsetX;lastY=e.offsetY;});
+  globeCanvas.addEventListener('mousemove',e=>{
+    if(!isDrag)return;
+    const dx=e.offsetX-lastX,dy=e.offsetY-lastY;
+    rot-=dx*0.01;tilt+=dy*0.005;
+    tilt=Math.max(-1,Math.min(1,tilt));
+    lastX=e.offsetX;lastY=e.offsetY;
+  });
+  globeCanvas.addEventListener('mouseup',()=>isDrag=false);
+  globeCanvas.addEventListener('mouseleave',()=>isDrag=false);
+  drawGlobe();
+}
+
+renderActs(0);
+renderBudget();
+renderPacking();
+renderTrips();
+renderExplore();
+renderMemories();
+setTimeout(initGlobe,120);
+</script>
