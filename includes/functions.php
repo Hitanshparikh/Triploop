@@ -1,0 +1,163 @@
+<?php
+/**
+ * JourneyOS AI — Helper Functions
+ */
+
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/session.php';
+
+/**
+ * Redirect helper
+ */
+function redirect($path) {
+    header('Location: ' . APP_URL . $path);
+    exit;
+}
+
+/**
+ * JSON response
+ */
+function jsonResponse($data, $status = 200) {
+    http_response_code($status);
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
+
+/**
+ * Require authentication
+ */
+function requireAuth() {
+    if (!isLoggedIn()) {
+        if (isAjaxRequest()) {
+            jsonResponse(['error' => 'Unauthorized'], 401);
+        }
+        redirect('/pages/login.php');
+    }
+}
+
+/**
+ * Require admin role
+ */
+function requireAdmin() {
+    requireAuth();
+    if (!isAdmin()) {
+        if (isAjaxRequest()) {
+            jsonResponse(['error' => 'Forbidden'], 403);
+        }
+        redirect('/pages/dashboard.php');
+    }
+}
+
+/**
+ * Check if AJAX request
+ */
+function isAjaxRequest() {
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
+
+/**
+ * Get request method
+ */
+function requestMethod() {
+    return strtoupper($_SERVER['REQUEST_METHOD']);
+}
+
+/**
+ * Get POST/GET input safely
+ */
+function input($key, $default = null) {
+    return $_POST[$key] ?? $_GET[$key] ?? $default;
+}
+
+/**
+ * Format currency
+ */
+function formatCurrency($amount, $currency = 'USD') {
+    return '$' . number_format((float)$amount, 2);
+}
+
+/**
+ * Format date
+ */
+function formatDate($date, $format = 'M j, Y') {
+    return date($format, strtotime($date));
+}
+
+/**
+ * Time ago
+ */
+function timeAgo($datetime) {
+    $now = new DateTime();
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+    if ($diff->y > 0) return $diff->y . 'y ago';
+    if ($diff->m > 0) return $diff->m . 'mo ago';
+    if ($diff->d > 0) return $diff->d . 'd ago';
+    if ($diff->h > 0) return $diff->h . 'h ago';
+    if ($diff->i > 0) return $diff->i . 'm ago';
+    return 'just now';
+}
+
+/**
+ * Generate unique token
+ */
+function generateToken($length = 32) {
+    return bin2hex(random_bytes($length));
+}
+
+/**
+ * Handle file upload
+ */
+function uploadFile($file, $directory, $allowedTypes = null) {
+    $allowedTypes = $allowedTypes ?? ALLOWED_IMAGE_TYPES;
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['error' => 'Upload failed'];
+    }
+    if ($file['size'] > MAX_UPLOAD_SIZE) {
+        return ['error' => 'File too large (max 5MB)'];
+    }
+    if (!in_array($file['type'], $allowedTypes)) {
+        return ['error' => 'Invalid file type'];
+    }
+
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = generateToken(16) . '.' . $ext;
+    $uploadDir = UPLOADS_PATH . '/' . $directory;
+
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+
+    $destination = $uploadDir . '/' . $filename;
+    if (move_uploaded_file($file['tmp_name'], $destination)) {
+        return ['success' => true, 'filename' => $filename, 'url' => UPLOADS_URL . '/' . $directory . '/' . $filename];
+    }
+    return ['error' => 'Failed to save file'];
+}
+
+/**
+ * Truncate text
+ */
+function truncate($text, $length = 100) {
+    if (strlen($text) <= $length) return $text;
+    return substr($text, 0, $length) . '...';
+}
+
+/**
+ * Get mood theme data
+ */
+function getMoodTheme($mood) {
+    $themes = [
+        'adventure' => ['color' => '#FF6B35', 'gradient' => 'linear-gradient(135deg, #FF6B35, #F59E0B)', 'icon' => '⚡', 'label' => 'Adventure'],
+        'romantic' => ['color' => '#EC4899', 'gradient' => 'linear-gradient(135deg, #EC4899, #F43F5E)', 'icon' => '💕', 'label' => 'Romantic'],
+        'healing' => ['color' => '#10B981', 'gradient' => 'linear-gradient(135deg, #10B981, #6EE7B7)', 'icon' => '🌿', 'label' => 'Healing'],
+        'luxury' => ['color' => '#F59E0B', 'gradient' => 'linear-gradient(135deg, #F59E0B, #D97706)', 'icon' => '✨', 'label' => 'Luxury'],
+        'party' => ['color' => '#8B5CF6', 'gradient' => 'linear-gradient(135deg, #8B5CF6, #EC4899)', 'icon' => '🎉', 'label' => 'Party'],
+        'spiritual' => ['color' => '#6366F1', 'gradient' => 'linear-gradient(135deg, #6366F1, #818CF8)', 'icon' => '🧘', 'label' => 'Spiritual'],
+        'productivity' => ['color' => '#3B82F6', 'gradient' => 'linear-gradient(135deg, #3B82F6, #2563EB)', 'icon' => '💼', 'label' => 'Productivity'],
+        'solo' => ['color' => '#00D4FF', 'gradient' => 'linear-gradient(135deg, #00D4FF, #3B82F6)', 'icon' => '🌍', 'label' => 'Solo Exploration'],
+    ];
+    return $themes[$mood] ?? $themes['adventure'];
+}

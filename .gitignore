@@ -1,0 +1,23 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Uploads (user content)
+uploads/avatars/*
+uploads/covers/*
+uploads/journal/*
+!uploads/avatars/.gitkeep
+!uploads/covers/.gitkeep
+!uploads/journal/.gitkeep
+
+# Env
+.env
+
+# Logs
+*.log
