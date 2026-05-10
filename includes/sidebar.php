@@ -16,7 +16,9 @@
             ['url' => '/pages/budget.php', 'icon' => 'wallet', 'label' => 'Budget'],
             ['url' => '/pages/journal.php', 'icon' => 'book-open', 'label' => 'Journal'],
             ['url' => '/pages/packing.php', 'icon' => 'check-square', 'label' => 'Packing List'],
+            ['url' => '/pages/community.php', 'icon' => 'users', 'label' => 'Community Feed'],
             ['url' => '/pages/city-search.php', 'icon' => 'search', 'label' => 'Discover'],
+            ['url' => '/pages/bookings.php', 'icon' => 'plane', 'label' => 'Bookings'],
         ];
         
         $currentPath = $_SERVER['SCRIPT_NAME'];

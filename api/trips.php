@@ -1,145 +1,177 @@
 <?php
-/**
- * JourneyOS AI — Trips API
- * Handles: create, update, delete, list, share
- */
 require_once __DIR__ . '/../includes/functions.php';
 requireAuth();
 
-$action = input('action', '');
-$userId = currentUserId();
+header('Content-Type: application/json');
 
-switch ($action) {
+$action = $_POST['action'] ?? '';
 
-    case 'create':
-        if (requestMethod() !== 'POST') redirect('/pages/create-trip.php');
+if ($action === 'create') {
+    // Validate CSRF
+    if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+        exit;
+    }
+
+    $userId = currentUserId();
+    $name = trim($_POST['name'] ?? 'My Awesome Trip');
+    $destination = trim($_POST['destination'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $startDate = $_POST['start_date'] ?? '';
+    $endDate = $_POST['end_date'] ?? '';
+    $travelType = $_POST['travel_type'] ?? 'solo';
+    $mood = $_POST['mood'] ?? 'adventure';
+    $budget = floatval($_POST['budget'] ?? 0);
+    $currency = $_POST['currency'] ?? 'USD';
+    $budgetLevel = $_POST['budget_level'] ?? 'mid';
+    
+    $shareToken = bin2hex(random_bytes(16));
+
+    // Handle Cover Image
+    $coverImage = null;
+    if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK) {
+        $ext = pathinfo($_FILES['cover_image']['name'], PATHINFO_EXTENSION);
+        $filename = uniqid('cover_') . '.' . $ext;
+        $dest = __DIR__ . '/../uploads/covers/' . $filename;
+        if (move_uploaded_file($_FILES['cover_image']['tmp_name'], $dest)) {
+            $coverImage = $filename;
+        }
+    }
+
+    // Insert Trip
+    $tripId = db()->insert('trips', [
+        'user_id' => $userId,
+        'name' => $name,
+        'destination' => $destination,
+        'start_date' => $startDate,
+        'end_date' => $endDate,
+        'travel_type' => $travelType,
+        'mood' => $mood,
+        'budget_total' => $budget,
+        'currency' => $currency,
+        'budget_level' => $budgetLevel,
+        'description' => $description,
+        'cover_image' => $coverImage,
+        'share_token' => $shareToken
+    ]);
+
+    if (!$tripId) {
+        echo json_encode(['success' => false, 'error' => 'Failed to create trip']);
+        exit;
+    }
+
+    // Determine if AI Generation is requested
+    $aiGenerate = isset($_POST['ai_generate']) && $_POST['ai_generate'] === 'on';
+    $activities = $_POST['activity_prefs'] ?? [];
+
+    if ($aiGenerate && defined('RAPIDAPI_KEY') && RAPIDAPI_KEY !== '') {
+        $days = (strtotime($endDate) - strtotime($startDate)) / 86400;
+        $days = max(1, min($days, 14)); // Cap at 14 days for API limits
         
-        $name        = trim(input('name', ''));
-        $destination = trim(input('destination', ''));
-        $description = trim(input('description', ''));
-        $startDate   = input('start_date', '');
-        $endDate     = input('end_date', '');
-        $mood        = input('mood', 'adventure');
-        $travelType  = input('travel_type', 'solo');
-        $budgetTotal = floatval(input('budget_total', 0));
-        $budgetLevel = input('budget_level', 'mid');
-        $currency    = input('currency', 'USD');
-        $aiGenerate  = input('ai_generate', 0) ? 1 : 0;
-
-        if (!$name) {
-            setFlash('error', 'Please enter a trip name.');
-            redirect('/pages/create-trip.php');
-        }
-
-        // Handle cover image
-        $coverImage = '';
-        if (!empty($_FILES['cover_image']['name'])) {
-            $upload = uploadFile($_FILES['cover_image'], 'covers');
-            if (isset($upload['filename'])) $coverImage = $upload['filename'];
-        }
-
-        $shareToken = generateToken(16);
-
-        $tripId = db()->insert('trips', [
-            'user_id'      => $userId,
-            'name'         => $name,
-            'destination'  => $destination,
-            'description'  => $description,
-            'cover_image'  => $coverImage,
-            'start_date'   => $startDate ?: null,
-            'end_date'     => $endDate ?: null,
-            'mood'         => $mood,
-            'travel_type'  => $travelType,
-            'status'       => 'planning',
-            'budget_total' => $budgetTotal,
-            'budget_level' => $budgetLevel,
-            'currency'     => $currency,
-            'ai_generate'  => $aiGenerate,
-            'share_token'  => $shareToken,
-            'created_at'   => date('Y-m-d H:i:s'),
-        ]);
-
-        // Create itinerary sections if provided
-        $sections = $_POST['sections'] ?? [];
-        if (is_array($sections)) {
-            foreach ($sections as $i => $sec) {
-                if (empty($sec['title'])) continue;
-                db()->insert('itinerary_sections', [
-                    'trip_id'      => $tripId,
-                    'title'        => trim($sec['title']),
-                    'section_type' => $sec['type'] ?? 'travel',
-                    'start_date'   => $sec['start_date'] ?? null,
-                    'end_date'     => $sec['end_date'] ?? null,
-                    'budget'       => floatval($sec['budget'] ?? 0),
-                    'status'       => 'planned',
-                    'order_index'  => $i,
-                    'created_at'   => date('Y-m-d H:i:s'),
-                ]);
-            }
-        }
-
-        setFlash('success', 'Trip "' . $name . '" created successfully!');
-        redirect('/pages/my-trips.php');
-        break;
-
-    case 'update':
-        if (requestMethod() !== 'POST') redirect('/pages/my-trips.php');
-        $tripId = intval(input('trip_id', 0));
-        $trip = db()->fetch("SELECT * FROM trips WHERE id=? AND user_id=?", [$tripId, $userId]);
-        if (!$trip) { setFlash('error', 'Trip not found.'); redirect('/pages/my-trips.php'); }
-
         $data = [
-            'name'         => trim(input('name', $trip['name'])),
-            'destination'  => trim(input('destination', $trip['destination'] ?? '')),
-            'description'  => trim(input('description', $trip['description'] ?? '')),
-            'start_date'   => input('start_date', $trip['start_date']),
-            'end_date'     => input('end_date', $trip['end_date']),
-            'mood'         => input('mood', $trip['mood']),
-            'travel_type'  => input('travel_type', $trip['travel_type']),
-            'status'       => input('status', $trip['status']),
-            'budget_total' => floatval(input('budget_total', $trip['budget_total'])),
+            'days' => (int)$days,
+            'destination' => $destination,
+            'interests' => $activities,
+            'budget' => $budgetLevel,
+            'travelMode' => $travelType === 'solo' ? 'walking' : 'public transport'
         ];
 
-        if (!empty($_FILES['cover_image']['name'])) {
-            $upload = uploadFile($_FILES['cover_image'], 'covers');
-            if (isset($upload['filename'])) $data['cover_image'] = $upload['filename'];
+        // Call the proxy internally since we are already in the backend
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://ai-trip-planner.p.rapidapi.com/detailed-plan",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_HTTPHEADER => [
+                "Content-Type: application/json",
+                "x-rapidapi-host: ai-trip-planner.p.rapidapi.com",
+                "x-rapidapi-key: " . RAPIDAPI_KEY
+            ],
+        ]);
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $plan = json_decode($response, true);
+        
+        if ($plan && is_array($plan)) {
+            // We need to parse the AI plan into itinerary_sections.
+            // The rapidAPI ai-trip-planner usually returns an array of days or a structured format.
+            // For robustness, we will create generic sections if the structure is unknown, 
+            // or iterate if it's predictable. Let's assume an array of days containing activities.
+            
+            $dayIndex = 1;
+            $orderIndex = 1;
+            $currentDate = new DateTime($startDate);
+
+            // If the API returns a 'plan' key or just an array
+            $schedule = $plan['plan'] ?? $plan; 
+            
+            if (is_array($schedule)) {
+                foreach ($schedule as $dayPlan) {
+                    $dateStr = $currentDate->format('Y-m-d');
+                    
+                    // Try to extract activities
+                    $acts = $dayPlan['activities'] ?? $dayPlan['events'] ?? [$dayPlan];
+                    
+                    foreach ($acts as $act) {
+                        $title = is_array($act) ? ($act['title'] ?? $act['name'] ?? 'Activity') : (is_string($act) ? $act : 'Activity');
+                        $desc = is_array($act) ? ($act['description'] ?? '') : '';
+                        $time = is_array($act) ? ($act['time'] ?? '10:00') : '10:00';
+                        $loc = is_array($act) ? ($act['location'] ?? $destination) : $destination;
+                        
+                        db()->insert('itinerary_sections', [
+                            'trip_id' => $tripId,
+                            'title' => substr($title, 0, 100),
+                            'date' => $dateStr,
+                            'time' => $time,
+                            'location' => substr($loc, 0, 100),
+                            'notes' => $desc,
+                            'cost_estimate' => 0,
+                            'order_index' => $orderIndex++
+                        ]);
+                    }
+                    
+                    $currentDate->modify('+1 day');
+                    $dayIndex++;
+                }
+            }
         }
+    } else {
+        // Create an empty starter section
+        db()->insert('itinerary_sections', [
+            'trip_id' => $tripId,
+            'title' => 'Arrive at ' . $destination,
+            'date' => $startDate,
+            'time' => '14:00',
+            'location' => $destination,
+            'notes' => 'Check into hotel.',
+            'order_index' => 1
+        ]);
+    }
 
-        db()->update('trips', $data, 'id=? AND user_id=?', [$tripId, $userId]);
-        setFlash('success', 'Trip updated.');
-        redirect('/pages/my-trips.php');
-        break;
+    // Initialize packing list defaults if requested or standard
+    $cats = ['Documents', 'Clothing', 'Toiletries', 'Electronics', 'Essentials'];
+    foreach ($cats as $cat) {
+        $items = [['name' => 'Passport/ID', 'checked' => false]]; // sample item
+        db()->insert('packing_lists', [
+            'user_id' => $userId,
+            'trip_id' => $tripId,
+            'category' => $cat,
+            'items' => json_encode($items)
+        ]);
+    }
 
-    case 'delete':
-        $tripId = intval(input('trip_id', 0));
-        $trip = db()->fetch("SELECT id FROM trips WHERE id=? AND user_id=?", [$tripId, $userId]);
-        if ($trip) {
-            db()->delete('trips', 'id=?', [$tripId]);
-            setFlash('success', 'Trip deleted.');
-        }
-        if (isAjaxRequest()) jsonResponse(['success' => true]);
-        redirect('/pages/my-trips.php');
-        break;
-
-    case 'list':
-        $status = input('status', '');
-        $sql = "SELECT * FROM trips WHERE user_id=?";
-        $params = [$userId];
-        if ($status) { $sql .= " AND status=?"; $params[] = $status; }
-        $sql .= " ORDER BY created_at DESC";
-        $trips = db()->fetchAll($sql, $params);
-        jsonResponse(['success' => true, 'data' => $trips]);
-        break;
-
-    case 'share':
-        $tripId = intval(input('trip_id', 0));
-        $trip = db()->fetch("SELECT * FROM trips WHERE id=? AND user_id=?", [$tripId, $userId]);
-        if (!$trip) jsonResponse(['error' => 'Trip not found'], 404);
-        $isPublic = $trip['is_public'] ? 0 : 1;
-        db()->update('trips', ['is_public' => $isPublic], 'id=?', [$tripId]);
-        jsonResponse(['success' => true, 'is_public' => $isPublic, 'share_url' => APP_URL . '/pages/shared-trip.php?token=' . $trip['share_token']]);
-        break;
-
-    default:
-        redirect('/pages/my-trips.php');
+    // Return to frontend with redirect URL
+    echo json_encode([
+        'success' => true,
+        'redirect' => APP_URL . '/pages/dashboard.php'
+    ]);
+    exit;
 }
+
+echo json_encode(['success' => false, 'error' => 'Invalid action']);

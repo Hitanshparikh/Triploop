@@ -112,7 +112,8 @@ textarea.input-field{resize:vertical;min-height:100px;}
           <label>Select Destination(s) *</label>
           <div style="position:relative;">
             <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);"><i data-lucide="search" style="width:16px;height:16px;"></i></span>
-            <input type="text" name="destination" id="destinationInput" class="input-field" style="padding-left:44px;" placeholder="Search city or country..." required>
+            <input type="text" name="destination" id="destinationInput" class="input-field" style="padding-left:44px;" placeholder="Search city or country..." autocomplete="off" required>
+            <div id="locationDropdown" class="glass-card-static" style="display:none;position:absolute;top:100%;left:0;right:0;margin-top:var(--space-2);z-index:var(--z-dropdown);max-height:200px;overflow-y:auto;padding:var(--space-2);"></div>
           </div>
         </div>
         <!-- AI Suggestions Panel -->
@@ -360,6 +361,96 @@ function previewCover(input) {
     reader.readAsDataURL(input.files[0]);
   }
 }
+
+// Location Autocomplete via RapidAPI
+const destInput = document.getElementById('destinationInput');
+const destDropdown = document.getElementById('locationDropdown');
+let typingTimer;
+
+destInput.addEventListener('input', () => {
+    clearTimeout(typingTimer);
+    const q = destInput.value.trim();
+    if(q.length < 3) {
+        destDropdown.style.display = 'none';
+        return;
+    }
+    typingTimer = setTimeout(async () => {
+        try {
+            const res = await fetch(`<?= APP_URL ?>/api/external.php?action=locations_autocomplete&q=${encodeURIComponent(q)}`);
+            const json = await res.json();
+            if(json.success && json.data) {
+                destDropdown.innerHTML = '';
+                const locations = Array.isArray(json.data) ? json.data : (json.data.locations || []);
+                if(locations.length === 0) {
+                    destDropdown.innerHTML = '<div style="padding:8px;color:var(--text-muted);font-size:12px;">No results found</div>';
+                } else {
+                    locations.slice(0, 5).forEach(loc => {
+                        const name = loc.name || loc.exactMatch || 'Unknown Location';
+                        const el = document.createElement('div');
+                        el.style.cssText = 'padding:8px;cursor:pointer;border-radius:4px;font-size:14px;';
+                        el.onmouseover = () => el.style.background = 'rgba(255,255,255,0.05)';
+                        el.onmouseout = () => el.style.background = 'transparent';
+                        el.textContent = name;
+                        el.onclick = () => {
+                            destInput.value = name;
+                            destDropdown.style.display = 'none';
+                        };
+                        destDropdown.appendChild(el);
+                    });
+                }
+                destDropdown.style.display = 'block';
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }, 500);
+});
+
+document.addEventListener('click', (e) => {
+    if(e.target !== destInput && e.target !== destDropdown) {
+        destDropdown.style.display = 'none';
+    }
+});
+
+document.getElementById('createTripForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Check if AI is enabled to show appropriate loading text
+    const isAiEnabled = document.getElementById('aiToggle').checked;
+    const btn = document.querySelector('.btn-lg');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = `<i data-lucide="loader-2" style="width:18px;height:18px;animation:spin 1s linear infinite;"></i> ${isAiEnabled ? 'AI is generating your itinerary...' : 'Creating Trip...'}`;
+    btn.style.pointerEvents = 'none';
+    lucide.createIcons();
+    
+    try {
+        const formData = new FormData(this);
+        const res = await fetch(this.action, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); } catch(err) { throw new Error('Invalid JSON: ' + text); }
+        
+        if(json.success) {
+            window.location.href = json.redirect;
+        } else {
+            alert('Error: ' + json.error);
+            btn.innerHTML = originalText;
+            btn.style.pointerEvents = 'auto';
+            lucide.createIcons();
+        }
+    } catch (error) {
+        console.error(error);
+        alert('An unexpected error occurred. Please check console.');
+        btn.innerHTML = originalText;
+        btn.style.pointerEvents = 'auto';
+        lucide.createIcons();
+    }
+});
 
 lucide.createIcons();
 </script>

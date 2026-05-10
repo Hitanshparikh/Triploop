@@ -1,0 +1,146 @@
+<?php
+require_once __DIR__ . '/../includes/functions.php';
+
+// Only allow POST or GET depending on our needs. For now, we'll allow both to act as a proxy.
+header('Content-Type: application/json');
+
+if (!defined('RAPIDAPI_KEY')) {
+    echo json_encode(['success' => false, 'error' => 'API Key not configured.']);
+    exit;
+}
+
+$action = $_GET['action'] ?? $_POST['action'] ?? '';
+
+// Helper to make cURL requests
+function makeRapidApiRequest($url, $host, $method = 'GET', $data = null) {
+    $curl = curl_init();
+    
+    $headers = [
+        "x-rapidapi-host: " . $host,
+        "x-rapidapi-key: " . RAPIDAPI_KEY,
+        "Content-Type: application/json"
+    ];
+
+    $options = [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_HTTPHEADER => $headers,
+    ];
+
+    if ($method === 'POST' && $data !== null) {
+        $options[CURLOPT_POSTFIELDS] = json_encode($data);
+    }
+
+    curl_setopt_array($curl, $options);
+
+    $response = curl_exec($curl);
+    $err = curl_error($curl);
+
+    curl_close($curl);
+
+    if ($err) {
+        return ['success' => false, 'error' => "cURL Error #:" . $err];
+    } else {
+        return json_decode($response, true) ?? ['success' => false, 'error' => 'Invalid JSON response'];
+    }
+}
+
+// Route the actions
+switch ($action) {
+    case 'ai_trip_plan':
+        // ai-trip-planner
+        $input = json_decode(file_get_contents('php://input'), true);
+        $days = $input['days'] ?? 3;
+        $destination = $input['destination'] ?? 'Paris';
+        $interests = $input['interests'] ?? ['sightseeing'];
+        $budget = $input['budget'] ?? 'medium';
+        $travelMode = $input['travelMode'] ?? 'public transport';
+
+        $data = [
+            'days' => (int)$days,
+            'destination' => $destination,
+            'interests' => $interests,
+            'budget' => $budget,
+            'travelMode' => $travelMode
+        ];
+        $result = makeRapidApiRequest('https://ai-trip-planner.p.rapidapi.com/detailed-plan', 'ai-trip-planner.p.rapidapi.com', 'POST', $data);
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    case 'travel_chat':
+        // travelchat-ai
+        $input = json_decode(file_get_contents('php://input'), true);
+        $message = $input['message'] ?? 'Tell me best destinations for Paris';
+        $result = makeRapidApiRequest('https://travelchat-ai.p.rapidapi.com/travelchatAI', 'travelchat-ai.p.rapidapi.com', 'POST', ['message' => $message]);
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    case 'city_top_places':
+        // travel-guide-api-city-guide-top-places
+        $input = json_decode(file_get_contents('php://input'), true);
+        $region = $input['region'] ?? 'London';
+        $interests = $input['interests'] ?? ["historical", "cultural", "food"];
+        $data = ['region' => $region, 'language' => 'en', 'interests' => $interests];
+        $result = makeRapidApiRequest('https://travel-guide-api-city-guide-top-places.p.rapidapi.com/check?noqueue=1', 'travel-guide-api-city-guide-top-places.p.rapidapi.com', 'POST', $data);
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    case 'locations_autocomplete':
+        // skedgo-tripgo-v1
+        $query = urlencode($_GET['q'] ?? '');
+        // The API actually uses a query parameter `q` which isn't in the example, assuming we append it
+        $url = 'https://skedgo-tripgo-v1.p.rapidapi.com/locations.json?q=' . $query . '&includeRoutes=false&modes=%5B%5D&includeDropOffOnly=false&strictModeMatch=true&includeChildren=false&sortedByProximity=false';
+        $result = makeRapidApiRequest($url, 'skedgo-tripgo-v1.p.rapidapi.com', 'GET');
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    case 'search_restaurants':
+        // tripadvisor16
+        $locationId = urlencode($_GET['locationId'] ?? '304554');
+        $url = 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchRestaurants?locationId=' . $locationId;
+        $result = makeRapidApiRequest($url, 'tripadvisor16.p.rapidapi.com', 'GET');
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    case 'search_hotels':
+        // travel-advisor
+        $input = json_decode(file_get_contents('php://input'), true);
+        $contentId = $input['contentId'] ?? '4172546'; // fallback
+        $data = [
+            'contentType' => 'hotel',
+            'contentId' => $contentId,
+            'questionId' => '8393250',
+            'pagee' => 0,
+            'updateToken' => ''
+        ];
+        $result = makeRapidApiRequest('https://travel-advisor.p.rapidapi.com/answers/v2/list?currency=USD&units=km&lang=en_US', 'travel-advisor.p.rapidapi.com', 'POST', $data);
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    case 'search_cars':
+        // booking-com15
+        $lat = urlencode($_GET['lat'] ?? '40.6397');
+        $lng = urlencode($_GET['lng'] ?? '-73.7791');
+        $pickup = urlencode($_GET['pickup'] ?? '10:00');
+        $dropoff = urlencode($_GET['dropoff'] ?? '10:00');
+        $url = "https://booking-com15.p.rapidapi.com/api/v1/cars/searchCarRentals?pick_up_latitude={$lat}&pick_up_longitude={$lng}&drop_off_latitude={$lat}&drop_off_longitude={$lng}&pick_up_time={$pickup}&drop_off_time={$dropoff}&driver_age=30&currency_code=USD&location=US";
+        $result = makeRapidApiRequest($url, 'booking-com15.p.rapidapi.com', 'GET');
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    case 'search_flights':
+        // airline-travel
+        // The example curl is just GET to root, which might require query params. We will expose it generically.
+        $result = makeRapidApiRequest('https://airline-travel.p.rapidapi.com/', 'airline-travel.p.rapidapi.com', 'GET');
+        echo json_encode(['success' => true, 'data' => $result]);
+        break;
+
+    default:
+        echo json_encode(['success' => false, 'error' => 'Unknown action: ' . $action]);
+        break;
+}
