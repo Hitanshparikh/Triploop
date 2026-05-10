@@ -160,11 +160,11 @@ if ($action === 'create') {
                         db()->insert('itinerary_sections', [
                             'trip_id' => $tripId,
                             'title' => substr($title, 0, 100),
-                            'date' => $dateStr,
-                            'time' => $time,
-                            'location' => substr($loc, 0, 100),
-                            'notes' => $desc,
-                            'cost_estimate' => 0,
+                            'start_date' => $dateStr,
+                            'end_date' => $dateStr,
+                            'section_type' => 'activity',
+                            'notes' => "Location: $loc\nTime: $time\n\n$desc",
+                            'budget' => 0,
                             'order_index' => $orderIndex++
                         ]);
                     }
@@ -179,10 +179,11 @@ if ($action === 'create') {
         db()->insert('itinerary_sections', [
             'trip_id' => $tripId,
             'title' => 'Arrive at ' . $destination,
-            'date' => $startDate,
-            'time' => '14:00',
-            'location' => $destination,
-            'notes' => 'Check into hotel.',
+            'start_date' => $startDate,
+            'end_date' => $startDate,
+            'section_type' => 'travel',
+            'notes' => "Location: $destination\nTime: 14:00\n\nCheck into hotel.",
+            'budget' => 0,
             'order_index' => 1
         ]);
     }
