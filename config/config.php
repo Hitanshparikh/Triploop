@@ -9,7 +9,7 @@ defined('JOURNEYOS') or define('JOURNEYOS', true);
 // App Settings
 define('APP_NAME', 'JourneyOS AI');
 define('APP_TAGLINE', 'The Emotional Operating System for Travel');
-define('APP_URL', 'http://localhost/triploop');
+define('APP_URL', 'http://localhost/parul');
 define('APP_VERSION', '1.0.0');
 
 // Database

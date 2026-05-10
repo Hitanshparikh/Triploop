@@ -66,14 +66,14 @@ $flash = getFlash();
                 <div class="input-group">
                     <label for="email">Email</label>
                     <div class="input-icon-wrapper">
-                        <span class="input-icon">✉</span>
+                        <span class="input-icon"><i data-lucide="mail"></i></span>
                         <input type="email" id="email" name="email" class="input-field" placeholder="you@example.com" required autocomplete="email">
                     </div>
                 </div>
                 <div class="input-group">
                     <label for="password">Password</label>
                     <div class="input-icon-wrapper">
-                        <span class="input-icon">🔒</span>
+                        <span class="input-icon"><i data-lucide="lock"></i></span>
                         <input type="password" id="password" name="password" class="input-field" placeholder="••••••••" required autocomplete="current-password">
                     </div>
                 </div>
@@ -90,5 +90,7 @@ $flash = getFlash();
         </div>
     </div>
 </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

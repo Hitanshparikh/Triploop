@@ -150,14 +150,14 @@ function truncate($text, $length = 100) {
  */
 function getMoodTheme($mood) {
     $themes = [
-        'adventure' => ['color' => '#FF6B35', 'gradient' => 'linear-gradient(135deg, #FF6B35, #F59E0B)', 'icon' => '⚡', 'label' => 'Adventure'],
-        'romantic' => ['color' => '#EC4899', 'gradient' => 'linear-gradient(135deg, #EC4899, #F43F5E)', 'icon' => '💕', 'label' => 'Romantic'],
-        'healing' => ['color' => '#10B981', 'gradient' => 'linear-gradient(135deg, #10B981, #6EE7B7)', 'icon' => '🌿', 'label' => 'Healing'],
-        'luxury' => ['color' => '#F59E0B', 'gradient' => 'linear-gradient(135deg, #F59E0B, #D97706)', 'icon' => '✨', 'label' => 'Luxury'],
-        'party' => ['color' => '#8B5CF6', 'gradient' => 'linear-gradient(135deg, #8B5CF6, #EC4899)', 'icon' => '🎉', 'label' => 'Party'],
-        'spiritual' => ['color' => '#6366F1', 'gradient' => 'linear-gradient(135deg, #6366F1, #818CF8)', 'icon' => '🧘', 'label' => 'Spiritual'],
-        'productivity' => ['color' => '#3B82F6', 'gradient' => 'linear-gradient(135deg, #3B82F6, #2563EB)', 'icon' => '💼', 'label' => 'Productivity'],
-        'solo' => ['color' => '#00D4FF', 'gradient' => 'linear-gradient(135deg, #00D4FF, #3B82F6)', 'icon' => '🌍', 'label' => 'Solo Exploration'],
+        'adventure' => ['color' => '#FF6B35', 'gradient' => 'linear-gradient(135deg, #FF6B35, #F59E0B)', 'icon' => '<i data-lucide="zap"></i>', 'label' => 'Adventure'],
+        'romantic' => ['color' => '#EC4899', 'gradient' => 'linear-gradient(135deg, #EC4899, #F43F5E)', 'icon' => '<i data-lucide="heart"></i>', 'label' => 'Romantic'],
+        'healing' => ['color' => '#10B981', 'gradient' => 'linear-gradient(135deg, #10B981, #6EE7B7)', 'icon' => '<i data-lucide="leaf"></i>', 'label' => 'Healing'],
+        'luxury' => ['color' => '#F59E0B', 'gradient' => 'linear-gradient(135deg, #F59E0B, #D97706)', 'icon' => '<i data-lucide="sparkles"></i>', 'label' => 'Luxury'],
+        'party' => ['color' => '#8B5CF6', 'gradient' => 'linear-gradient(135deg, #8B5CF6, #EC4899)', 'icon' => '<i data-lucide="party-popper"></i>', 'label' => 'Party'],
+        'spiritual' => ['color' => '#6366F1', 'gradient' => 'linear-gradient(135deg, #6366F1, #818CF8)', 'icon' => '<i data-lucide="flower-2"></i>', 'label' => 'Spiritual'],
+        'productivity' => ['color' => '#3B82F6', 'gradient' => 'linear-gradient(135deg, #3B82F6, #2563EB)', 'icon' => '<i data-lucide="briefcase"></i>', 'label' => 'Productivity'],
+        'solo' => ['color' => '#00D4FF', 'gradient' => 'linear-gradient(135deg, #00D4FF, #3B82F6)', 'icon' => '<i data-lucide="globe"></i>', 'label' => 'Solo Exploration'],
     ];
     return $themes[$mood] ?? $themes['adventure'];
 }

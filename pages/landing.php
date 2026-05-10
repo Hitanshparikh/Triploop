@@ -88,32 +88,32 @@
             </div>
             <div class="features-grid mt-12">
                 <div class="feature-card glass-card reveal delay-100">
-                    <div class="feature-icon" style="background: var(--gradient-cyan);">🗺️</div>
+                    <div class="feature-icon" style="background: var(--gradient-cyan);"><i data-lucide="map"></i></div>
                     <h4>Smart Itineraries</h4>
                     <p>AI-optimized day plans that balance pacing, budget, and energy levels.</p>
                 </div>
                 <div class="feature-card glass-card reveal delay-200">
-                    <div class="feature-icon" style="background: var(--gradient-purple);">🧠</div>
+                    <div class="feature-icon" style="background: var(--gradient-purple);"><i data-lucide="brain"></i></div>
                     <h4>Mood Engine</h4>
                     <p>The app adapts colors, pace, and recommendations to how you want to feel.</p>
                 </div>
                 <div class="feature-card glass-card reveal delay-300">
-                    <div class="feature-icon" style="background: var(--gradient-warm);">📊</div>
+                    <div class="feature-icon" style="background: var(--gradient-warm);"><i data-lucide="bar-chart-2"></i></div>
                     <h4>Trip Simulation</h4>
                     <p>Predict stress, fatigue, and budget burn before you even leave.</p>
                 </div>
                 <div class="feature-card glass-card reveal delay-400">
-                    <div class="feature-icon" style="background: linear-gradient(135deg, #10B981, #6EE7B7);">👥</div>
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #10B981, #6EE7B7);"><i data-lucide="users"></i></div>
                     <h4>Live Collaboration</h4>
                     <p>Plan together in real-time. Vote, comment, and split expenses.</p>
                 </div>
                 <div class="feature-card glass-card reveal delay-500">
-                    <div class="feature-icon" style="background: linear-gradient(135deg, #EC4899, #F43F5E);">📖</div>
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #EC4899, #F43F5E);"><i data-lucide="book-open"></i></div>
                     <h4>Travel Journal</h4>
                     <p>Emotional journaling with AI-generated memory timelines.</p>
                 </div>
                 <div class="feature-card glass-card reveal delay-600">
-                    <div class="feature-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">💰</div>
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);"><i data-lucide="coins"></i></div>
                     <h4>Budget Intelligence</h4>
                     <p>Real-time spending analytics with overbudget warnings.</p>
                 </div>
@@ -125,35 +125,35 @@
     <section class="section mood-section" id="mood">
         <div class="container">
             <div class="section-header text-center reveal">
-                <span class="section-tag badge badge-purple">🧠 Mood Engine</span>
+                <span class="section-tag badge badge-purple"><i data-lucide="brain"></i> Mood Engine</span>
                 <h2 class="mt-4">Your Mood.<br><span class="text-gradient-purple">Your Experience.</span></h2>
                 <p class="section-desc mt-4">Select how you want to feel. The entire app transforms to match.</p>
             </div>
             <div class="mood-selector mt-12 reveal">
                 <div class="mood-grid">
                     <button class="mood-btn active" data-mood="adventure" style="--mood-color: #FF6B35;">
-                        <span class="mood-emoji">⚡</span><span class="mood-label">Adventure</span>
+                        <span class="mood-emoji"><i data-lucide="zap"></i></span><span class="mood-label">Adventure</span>
                     </button>
                     <button class="mood-btn" data-mood="romantic" style="--mood-color: #EC4899;">
-                        <span class="mood-emoji">💕</span><span class="mood-label">Romantic</span>
+                        <span class="mood-emoji"><i data-lucide="heart"></i></span><span class="mood-label">Romantic</span>
                     </button>
                     <button class="mood-btn" data-mood="healing" style="--mood-color: #10B981;">
-                        <span class="mood-emoji">🌿</span><span class="mood-label">Healing</span>
+                        <span class="mood-emoji"><i data-lucide="leaf"></i></span><span class="mood-label">Healing</span>
                     </button>
                     <button class="mood-btn" data-mood="luxury" style="--mood-color: #F59E0B;">
-                        <span class="mood-emoji">✨</span><span class="mood-label">Luxury</span>
+                        <span class="mood-emoji"><i data-lucide="sparkles"></i></span><span class="mood-label">Luxury</span>
                     </button>
                     <button class="mood-btn" data-mood="party" style="--mood-color: #8B5CF6;">
-                        <span class="mood-emoji">🎉</span><span class="mood-label">Party</span>
+                        <span class="mood-emoji"><i data-lucide="party-popper"></i></span><span class="mood-label">Party</span>
                     </button>
                     <button class="mood-btn" data-mood="spiritual" style="--mood-color: #6366F1;">
-                        <span class="mood-emoji">🧘</span><span class="mood-label">Spiritual</span>
+                        <span class="mood-emoji"><i data-lucide="flower-2"></i></span><span class="mood-label">Spiritual</span>
                     </button>
                     <button class="mood-btn" data-mood="productivity" style="--mood-color: #3B82F6;">
-                        <span class="mood-emoji">💼</span><span class="mood-label">Productivity</span>
+                        <span class="mood-emoji"><i data-lucide="briefcase"></i></span><span class="mood-label">Productivity</span>
                     </button>
                     <button class="mood-btn" data-mood="solo" style="--mood-color: #00D4FF;">
-                        <span class="mood-emoji">🌍</span><span class="mood-label">Solo</span>
+                        <span class="mood-emoji"><i data-lucide="globe"></i></span><span class="mood-label">Solo</span>
                     </button>
                 </div>
                 <div class="mood-preview glass-card-static mt-8" id="moodPreview">
@@ -164,13 +164,13 @@
                     <p id="moodDesc" class="mt-2" style="color: var(--text-secondary);">Bold colors, faster transitions, intense activity suggestions, and adrenaline-pumping destinations.</p>
                     <div class="mood-demo-cards mt-6" id="moodCards">
                         <div class="mood-demo-card" style="border-color: rgba(255,107,53,0.3);">
-                            <span>🏔️</span><p>Hiking Machu Picchu</p>
+                            <span><i data-lucide="mountain"></i></span><p>Hiking Machu Picchu</p>
                         </div>
                         <div class="mood-demo-card" style="border-color: rgba(255,107,53,0.3);">
-                            <span>🤿</span><p>Scuba in Great Barrier Reef</p>
+                            <span><i data-lucide="waves"></i></span><p>Scuba in Great Barrier Reef</p>
                         </div>
                         <div class="mood-demo-card" style="border-color: rgba(255,107,53,0.3);">
-                            <span>🪂</span><p>Skydiving in Dubai</p>
+                            <span><i data-lucide="wind"></i></span><p>Skydiving in Dubai</p>
                         </div>
                     </div>
                 </div>
@@ -183,16 +183,16 @@
         <div class="container">
             <div class="grid" style="grid-template-columns: 1fr 1fr; gap: var(--space-16); align-items: center;">
                 <div class="reveal-left">
-                    <span class="section-tag badge badge-orange">📊 Trip Simulation</span>
+                    <span class="section-tag badge badge-orange"><i data-lucide="bar-chart-2"></i> Trip Simulation</span>
                     <h2 class="mt-4">Know Before<br><span class="text-gradient-aurora">You Go</span></h2>
                     <p class="mt-4" style="color: var(--text-secondary); font-size: var(--text-lg);">
                         Our AI predicts your trip experience before you leave. Get actionable insights to optimize every moment.
                     </p>
                     <div class="sim-metrics mt-8">
-                        <div class="sim-metric"><span class="sim-icon">😰</span><div><strong>Stress Level</strong><div class="sim-bar"><div class="sim-fill" style="width:35%; background: var(--accent-green);"></div></div></div></div>
-                        <div class="sim-metric"><span class="sim-icon">🦶</span><div><strong>Walking Load</strong><div class="sim-bar"><div class="sim-fill" style="width:60%; background: var(--accent-orange);"></div></div></div></div>
-                        <div class="sim-metric"><span class="sim-icon">💸</span><div><strong>Budget Burn</strong><div class="sim-bar"><div class="sim-fill" style="width:45%; background: var(--accent-cyan);"></div></div></div></div>
-                        <div class="sim-metric"><span class="sim-icon">🌧️</span><div><strong>Weather Risk</strong><div class="sim-bar"><div class="sim-fill" style="width:25%; background: var(--accent-purple);"></div></div></div></div>
+                        <div class="sim-metric"><span class="sim-icon"><i data-lucide="frown"></i></span><div><strong>Stress Level</strong><div class="sim-bar"><div class="sim-fill" style="width:35%; background: var(--accent-green);"></div></div></div></div>
+                        <div class="sim-metric"><span class="sim-icon"><i data-lucide="footprints"></i></span><div><strong>Walking Load</strong><div class="sim-bar"><div class="sim-fill" style="width:60%; background: var(--accent-orange);"></div></div></div></div>
+                        <div class="sim-metric"><span class="sim-icon"><i data-lucide="banknote"></i></span><div><strong>Budget Burn</strong><div class="sim-bar"><div class="sim-fill" style="width:45%; background: var(--accent-cyan);"></div></div></div></div>
+                        <div class="sim-metric"><span class="sim-icon"><i data-lucide="cloud-rain"></i></span><div><strong>Weather Risk</strong><div class="sim-bar"><div class="sim-fill" style="width:25%; background: var(--accent-purple);"></div></div></div></div>
                     </div>
                 </div>
                 <div class="reveal-right">
@@ -209,9 +209,9 @@
                             </div>
                         </div>
                         <div class="sim-suggestions mt-6">
-                            <div class="sim-suggestion"><span>💡</span> Add a rest day between Tokyo and Kyoto</div>
-                            <div class="sim-suggestion"><span>💡</span> Book morning activities — less crowd</div>
-                            <div class="sim-suggestion"><span>💡</span> Budget $40/day buffer for hidden costs</div>
+                            <div class="sim-suggestion"><span><i data-lucide="lightbulb"></i></span> Add a rest day between Tokyo and Kyoto</div>
+                            <div class="sim-suggestion"><span><i data-lucide="lightbulb"></i></span> Book morning activities — less crowd</div>
+                            <div class="sim-suggestion"><span><i data-lucide="lightbulb"></i></span> Budget $40/day buffer for hidden costs</div>
                         </div>
                     </div>
                 </div>
@@ -223,22 +223,22 @@
     <section class="section collab-section" id="collab">
         <div class="container text-center">
             <div class="reveal">
-                <span class="section-tag badge badge-green">👥 Collaborative</span>
+                <span class="section-tag badge badge-green"><i data-lucide="users"></i> Collaborative</span>
                 <h2 class="mt-4">Plan Together.<br><span class="text-gradient">Travel Together.</span></h2>
                 <p class="section-desc mt-4">Real-time collaboration rooms where friends can vote, comment, and plan simultaneously.</p>
             </div>
             <div class="collab-features mt-12">
                 <div class="collab-card glass-card reveal delay-100">
-                    <div class="collab-icon">🗳️</div><h5>Vote on Activities</h5><p>Everyone gets a say</p>
+                    <div class="collab-icon"><i data-lucide="check-square"></i></div><h5>Vote on Activities</h5><p>Everyone gets a say</p>
                 </div>
                 <div class="collab-card glass-card reveal delay-200">
-                    <div class="collab-icon">💬</div><h5>Live Comments</h5><p>Discuss in real-time</p>
+                    <div class="collab-icon"><i data-lucide="message-square"></i></div><h5>Live Comments</h5><p>Discuss in real-time</p>
                 </div>
                 <div class="collab-card glass-card reveal delay-300">
-                    <div class="collab-icon">✏️</div><h5>Edit Together</h5><p>Simultaneous editing</p>
+                    <div class="collab-icon"><i data-lucide="pen-tool"></i></div><h5>Edit Together</h5><p>Simultaneous editing</p>
                 </div>
                 <div class="collab-card glass-card reveal delay-400">
-                    <div class="collab-icon">💰</div><h5>Split Expenses</h5><p>Fair and transparent</p>
+                    <div class="collab-icon"><i data-lucide="coins"></i></div><h5>Split Expenses</h5><p>Fair and transparent</p>
                 </div>
             </div>
         </div>
@@ -272,6 +272,8 @@
         </div>
     </footer>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
     <script src="<?= ASSETS_PATH ?>/js/landing.js"></script>
 </body>
 </html>
