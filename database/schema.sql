@@ -126,7 +126,21 @@ CREATE TABLE IF NOT EXISTS itinerary_items (
     FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
     FOREIGN KEY (stop_id) REFERENCES trip_stops(id) ON DELETE SET NULL,
     FOREIGN KEY (activity_id) REFERENCES activities(id) ON DELETE SET NULL,
-    INDEX idx_trip_day (trip_id, day_number, order_index)
+) ENGINE=InnoDB;
+
+-- Itinerary Sections (missing table)
+CREATE TABLE IF NOT EXISTS itinerary_sections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    trip_id INT NOT NULL,
+    title VARCHAR(200) DEFAULT NULL,
+    date DATE DEFAULT NULL,
+    time VARCHAR(50) DEFAULT NULL,
+    location VARCHAR(255) DEFAULT NULL,
+    notes TEXT DEFAULT NULL,
+    cost_estimate DECIMAL(10,2) DEFAULT 0,
+    order_index INT DEFAULT 0,
+    FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
+    INDEX idx_trip_order (trip_id, order_index)
 ) ENGINE=InnoDB;
 
 -- Expenses
