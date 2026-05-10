@@ -40,3 +40,18 @@ date_default_timezone_set('UTC');
 // Error reporting (disable in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
+// ============================================================
+// Google OAuth 2.0
+// ============================================================
+// Step 1: Go to https://console.cloud.google.com/
+// Step 2: Create a project → APIs & Services → Credentials
+// Step 3: Create OAuth 2.0 Client ID (Web application)
+// Step 4: Add Authorized redirect URI:
+//         http://localhost/parul/api/auth.php?action=google_callback
+// Step 5: Paste your Client ID and Secret below
+// ============================================================
+define('GOOGLE_CLIENT_ID',     'PASTE_YOUR_GOOGLE_CLIENT_ID_HERE');
+define('GOOGLE_CLIENT_SECRET', 'PASTE_YOUR_GOOGLE_CLIENT_SECRET_HERE');
+define('GOOGLE_REDIRECT_URI',  APP_URL . '/api/auth.php?action=google_callback');
+define('GOOGLE_OAUTH_ENABLED', GOOGLE_CLIENT_ID !== 'PASTE_YOUR_GOOGLE_CLIENT_ID_HERE');
