@@ -173,50 +173,67 @@ function callGemini($prompt, $systemInstruction = null, $jsonMode = false) {
         return null;
     }
 
-    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . GEMINI_API_KEY;
-
-    $payload = [
-        'contents' => [
-            [
-                'parts' => [
-                    ['text' => $prompt]
-                ]
-            ]
-        ]
+    $models = [
+        'gemini-2.5-flash',
+        'gemini-2.5-flash-lite',
+        'gemini-flash-lite-latest',
+        'gemini-2.0-flash-lite-001',
+        'gemini-2.0-flash',
+        'gemini-flash-latest'
     ];
 
-    if ($systemInstruction) {
-        $payload['systemInstruction'] = [
-            'parts' => [
-                ['text' => $systemInstruction]
+    foreach ($models as $model) {
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key=" . GEMINI_API_KEY;
+
+        $payload = [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt]
+                    ]
+                ]
             ]
         ];
+
+        if ($systemInstruction) {
+            $payload['systemInstruction'] = [
+                'parts' => [
+                    ['text' => $systemInstruction]
+                ]
+            ];
+        }
+
+        if ($jsonMode) {
+            $payload['generationConfig'] = [
+                'responseMimeType' => 'application/json'
+            ];
+        }
+
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json'
+        ]);
+
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+
+        if (!$error) {
+            $data = json_decode($response, true);
+            if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                // Success! We found a working model
+                break;
+            }
+        }
     }
 
-    if ($jsonMode) {
-        $payload['generationConfig'] = [
-            'responseMimeType' => 'application/json'
-        ];
-    }
-
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
-    curl_setopt($curl, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json'
-    ]);
-
-    $response = curl_exec($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-
-    if ($error) {
-        error_log("Gemini CURL Error: " . $error);
+    if ($error || !isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+        error_log("Gemini API Exhausted/Error. Final response: " . $response);
         return null;
     }
-
-    $data = json_decode($response, true);
     
     if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
         $text = $data['candidates'][0]['content']['parts'][0]['text'];
