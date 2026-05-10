@@ -211,7 +211,10 @@ function callGemini($prompt, $systemInstruction = null, $jsonMode = false) {
     $error = curl_error($curl);
     curl_close($curl);
 
-    if ($error) return null;
+    if ($error) {
+        error_log("Gemini CURL Error: " . $error);
+        return null;
+    }
 
     $data = json_decode($response, true);
     
@@ -222,10 +225,14 @@ function callGemini($prompt, $systemInstruction = null, $jsonMode = false) {
             $text = preg_replace('/```\s*$/', '', $text);
             $text = trim($text);
             $parsed = json_decode($text, true);
+            if ($parsed === null) {
+                error_log("Gemini JSON Decode Error. Raw text: " . $text);
+            }
             return $parsed ? $parsed : null;
         }
         return $text;
     }
 
+    error_log("Gemini API Error. Full response: " . $response);
     return null;
 }

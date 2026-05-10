@@ -9,7 +9,8 @@ if (!defined('RAPIDAPI_KEY')) {
     exit;
 }
 
-$action = $_GET['action'] ?? $_POST['action'] ?? '';
+$inputData = json_decode(file_get_contents('php://input'), true);
+$action = $_GET['action'] ?? $_POST['action'] ?? ($inputData['action'] ?? '');
 
 // Helper to make cURL requests
 function makeRapidApiRequest($url, $host, $method = 'GET', $data = null) {
@@ -54,9 +55,8 @@ function makeRapidApiRequest($url, $host, $method = 'GET', $data = null) {
 switch ($action) {
     case 'ai_trip_plan':
         // ai-trip-planner
-        $input = json_decode(file_get_contents('php://input'), true);
-        $days = $input['days'] ?? 3;
-        $destination = $input['destination'] ?? 'Paris';
+        $days = $inputData['days'] ?? 3;
+        $destination = $inputData['destination'] ?? 'Paris';
         $interests = $input['interests'] ?? ['sightseeing'];
         $budget = $input['budget'] ?? 'medium';
         $travelMode = $input['travelMode'] ?? 'public transport';
@@ -74,15 +74,13 @@ switch ($action) {
 
     case 'travel_chat':
         // travelchat-ai
-        $input = json_decode(file_get_contents('php://input'), true);
-        $message = $input['message'] ?? 'Tell me best destinations for Paris';
+        $message = $inputData['message'] ?? 'Tell me best destinations for Paris';
         $result = makeRapidApiRequest('https://travelchat-ai.p.rapidapi.com/travelchatAI', 'travelchat-ai.p.rapidapi.com', 'POST', ['message' => $message]);
         echo json_encode(['success' => true, 'data' => $result]);
         break;
 
     case 'city_top_places':
-        $input = json_decode(file_get_contents('php://input'), true);
-        $region = $input['region'] ?? 'London';
+        $region = $inputData['region'] ?? 'London';
         
         $system = "You are a travel database. The user is asking for top places to visit in '$region'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float between 4.0 and 5.0), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?' + urlencode(name)).";
         $parsed = callGemini("Top places in $region", $system, true);
@@ -117,8 +115,7 @@ switch ($action) {
         break;
 
     case 'search_hotels':
-        $input = json_decode(file_get_contents('php://input'), true);
-        $region = $input['contentId'] ?? 'Unknown';
+        $region = $inputData['contentId'] ?? 'Unknown';
         $system = "You are a travel database. The user is asking for top hotels in '$region'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?hotel,resort').";
         $parsed = callGemini("Top hotels in $region", $system, true);
         if ($parsed && is_array($parsed)) {
@@ -147,8 +144,7 @@ switch ($action) {
         break;
 
     case 'magic_trip_parse':
-        $input = json_decode(file_get_contents('php://input'), true);
-        $prompt = $input['prompt'] ?? '';
+        $prompt = $inputData['prompt'] ?? '';
         
         $system = 'You are an AI travel assistant. Parse the user\'s natural language trip description and return a JSON object with EXACTLY these keys: "name" (a catchy title), "destination" (city/country), "start_date" (YYYY-MM-DD, assume future dates from today), "end_date" (YYYY-MM-DD), "travel_type", "mood", "budget" (integer estimate), "budget_level". Today is ' . date('Y-m-d') . '. IMPORTANT: You MUST strictly use ONLY these exact enum values. For "travel_type" choose one of: [solo, couple, family, friends, business, group]. For "mood" choose one of: [adventure, romantic, healing, luxury, party, spiritual, productivity, solo]. For "budget_level" choose one of: [budget, mid, luxury]. If omitted, you MUST GUESS a valid default from those exact lists. DO NOT use words outside of those brackets. DO NOT RETURN NULL FOR ANY VALUE; always provide an intelligent guess (e.g. 1000 for budget) if not provided.';
         
@@ -157,7 +153,7 @@ switch ($action) {
         if ($parsed) {
             echo json_encode(['success' => true, 'data' => $parsed]);
         } else {
-            echo json_encode(['success' => false, 'error' => 'Could not parse magic prompt.']);
+            echo json_encode(['success' => false, 'error' => 'Could not parse magic prompt. Check server logs for Gemini API error.']);
         }
         break;
 
