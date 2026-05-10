@@ -206,7 +206,7 @@ destInput.addEventListener('input', () => {
                     destDropdown.innerHTML = '<div style="padding:8px;color:var(--text-muted);font-size:12px;">No results found</div>';
                 } else {
                     locations.slice(0, 5).forEach(loc => {
-                        const name = loc.name || loc.exactMatch || loc || 'Unknown Location';
+                        const name = loc.name || loc.exactMatch || (typeof loc === 'string' ? loc : null) || 'Unknown Location';
                         const el = document.createElement('div');
                         el.style.cssText = 'padding:8px;cursor:pointer;border-radius:4px;font-size:14px;color:var(--text-primary);';
                         el.onmouseover = () => el.style.background = 'rgba(255,255,255,0.05)';
