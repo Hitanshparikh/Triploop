@@ -38,6 +38,14 @@ if ($action === 'create') {
         }
     }
 
+    $userId = currentUserId();
+    if ($userId) {
+        $userExists = db()->query("SELECT id FROM users WHERE id = ?", [$userId])->fetch();
+        if (!$userExists) {
+            db()->query("INSERT INTO users (id, name, email, password, role) VALUES (?, 'Demo User', 'demo@journeyos.com', 'dummy_hash', 'user')", [$userId]);
+        }
+    }
+
     // Insert Trip
     $tripId = db()->insert('trips', [
         'user_id' => $userId,
