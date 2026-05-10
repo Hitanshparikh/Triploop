@@ -6,39 +6,34 @@ header('Content-Type: application/json');
 
 $action = $_POST['action'] ?? '';
 
-if ($action === 'save') {
+if ($action === 'save_bulk') {
     $tripId = (int)($_POST['trip_id'] ?? 0);
-    $id = (int)($_POST['id'] ?? 0);
-    $title = trim($_POST['title'] ?? '');
-    $date = $_POST['date'] ?? null;
-    $time = $_POST['time'] ?? null;
-    $location = trim($_POST['location'] ?? '');
-    $notes = trim($_POST['notes'] ?? '');
+    $sections = $_POST['sections'] ?? [];
 
-    if (!$tripId || !$title) {
-        echo json_encode(['success' => false, 'error' => 'Missing title or trip ID']);
+    if (!$tripId) {
+        echo json_encode(['success' => false, 'error' => 'Missing trip ID']);
         exit;
     }
 
-    $data = [
-        'trip_id' => $tripId,
-        'title' => $title,
-        'date' => $date,
-        'time' => $time,
-        'location' => $location,
-        'notes' => $notes,
-    ];
+    // Delete existing and re-insert for simplicity in builder
+    db()->query("DELETE FROM itinerary_sections WHERE trip_id = ?", [$tripId]);
 
-    if ($id > 0) {
-        db()->update('itinerary_sections', $data, 'id = ?', [$id]);
-    } else {
-        // get max order
-        $max = db()->fetchOne("SELECT MAX(order_index) as m FROM itinerary_sections WHERE trip_id=?", [$tripId]);
-        $data['order_index'] = ($max['m'] ?? 0) + 1;
-        $id = db()->insert('itinerary_sections', $data);
+    foreach ($sections as $index => $sec) {
+        if (empty($sec['title'])) continue;
+        
+        $data = [
+            'trip_id' => $tripId,
+            'title' => trim($sec['title']),
+            'date' => $sec['date'] ?? null,
+            'time' => $sec['time'] ?? null,
+            'location' => trim($sec['location'] ?? ''),
+            'notes' => trim($sec['notes'] ?? ''),
+            'order_index' => (int)$index
+        ];
+        db()->insert('itinerary_sections', $data);
     }
 
-    echo json_encode(['success' => true, 'id' => $id]);
+    echo json_encode(['success' => true]);
     exit;
 }
 

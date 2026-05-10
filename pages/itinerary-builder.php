@@ -490,9 +490,6 @@ function updateBudgetSummary() {
 }
 
 function saveItinerary() {
-  // Prevent actual form submission to api for demo purposes if clicked on Save Draft
-  // Or submit normally if we want it to actually save to DB.
-  // Wait, the API doesn't fully exist for saving yet. Let's just simulate.
   event.preventDefault();
   const btn = document.getElementById('saveBtn');
   btn.innerHTML = '<i data-lucide="check" style="width:16px;height:16px;"></i> Saved!';
@@ -504,6 +501,8 @@ function saveItinerary() {
   // Actually submit the form to save
   const form = document.getElementById('itineraryForm');
   const formData = new FormData(form);
+  formData.append('action', 'save_bulk');
+  formData.append('trip_id', <?= $tripId ?>);
   
   fetch(form.action, {
       method: 'POST',
@@ -518,7 +517,8 @@ function saveItinerary() {
 }
 
 document.getElementById('itineraryForm').addEventListener('submit', function(e) {
-    // Regular save triggers normal form submission
+    e.preventDefault();
+    saveItinerary();
 });
 
 // Drag & Drop

@@ -4,6 +4,9 @@ requireAuth();
 
 // Pre-fill location if coming from another page
 $location = input('location', '');
+$userId = currentUserId();
+$latestTrip = db()->fetchOne("SELECT id FROM trips WHERE user_id = ? ORDER BY created_at DESC LIMIT 1", [$userId]);
+$latestTripId = $latestTrip ? $latestTrip['id'] : 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -300,9 +303,43 @@ function renderResults(type) {
     lucide.createIcons();
 }
 
-function addToBudget(amount, desc) {
-    alert(`Added $${amount} for ${desc} to your trip budget!`);
-    // In a real app, this would trigger an AJAX POST to api/budget.php to save the expense.
+async function addToBudget(amount, desc) {
+    const btn = event.currentTarget;
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = 'Adding...';
+    btn.disabled = true;
+
+    try {
+        const formData = new FormData();
+        formData.append('action', 'create');
+        formData.append('trip_id', <?= $latestTripId ?>);
+        formData.append('amount', amount);
+        formData.append('vendor', desc);
+        formData.append('category', 'Transport');
+
+        const res = await fetch(`<?= APP_URL ?>/api/budget.php`, {
+            method: 'POST',
+            body: formData
+        });
+        const json = await res.json();
+        
+        if (json.success) {
+            btn.innerHTML = 'Added! <i data-lucide="check" style="width:14px;height:14px;"></i>';
+            btn.style.background = 'var(--accent-green)';
+            btn.style.borderColor = 'var(--accent-green)';
+            btn.style.color = '#000';
+            lucide.createIcons();
+        } else {
+            alert('Failed to add expense.');
+            btn.innerHTML = origHtml;
+            btn.disabled = false;
+        }
+    } catch(e) {
+        console.error(e);
+        alert('Error adding expense.');
+        btn.innerHTML = origHtml;
+        btn.disabled = false;
+    }
 }
 </script>
 </body>

@@ -81,45 +81,51 @@ switch ($action) {
         break;
 
     case 'city_top_places':
-        // travel-guide-api-city-guide-top-places
         $input = json_decode(file_get_contents('php://input'), true);
         $region = $input['region'] ?? 'London';
-        $interests = $input['interests'] ?? ["historical", "cultural", "food"];
-        $data = ['region' => $region, 'language' => 'en', 'interests' => $interests];
-        $result = makeRapidApiRequest('https://travel-guide-api-city-guide-top-places.p.rapidapi.com/check?noqueue=1', 'travel-guide-api-city-guide-top-places.p.rapidapi.com', 'POST', $data);
-        echo json_encode(['success' => true, 'data' => $result]);
+        
+        $system = "You are a travel database. The user is asking for top places to visit in '$region'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float between 4.0 and 5.0), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?' + urlencode(name)).";
+        $parsed = callGemini("Top places in $region", $system, true);
+        
+        if ($parsed && is_array($parsed)) {
+            echo json_encode(['success' => true, 'data' => ['places' => $parsed]]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to fetch places']);
+        }
         break;
 
     case 'locations_autocomplete':
-        // skedgo-tripgo-v1
-        $query = urlencode($_GET['q'] ?? '');
-        // The API actually uses a query parameter `q` which isn't in the example, assuming we append it
-        $url = 'https://skedgo-tripgo-v1.p.rapidapi.com/locations.json?q=' . $query . '&includeRoutes=false&modes=%5B%5D&includeDropOffOnly=false&strictModeMatch=true&includeChildren=false&sortedByProximity=false';
-        $result = makeRapidApiRequest($url, 'skedgo-tripgo-v1.p.rapidapi.com', 'GET');
-        echo json_encode(['success' => true, 'data' => $result]);
+        $query = $_GET['q'] ?? '';
+        $system = "You are a location autocomplete engine. The user typed '$query'. Return a JSON array of 5 matching city/location names (strings). If empty, return [].";
+        $parsed = callGemini("Autocomplete: $query", $system, true);
+        if ($parsed && is_array($parsed)) {
+            echo json_encode(['success' => true, 'data' => $parsed]);
+        } else {
+            echo json_encode(['success' => true, 'data' => []]);
+        }
         break;
 
     case 'search_restaurants':
-        // tripadvisor16
-        $locationId = urlencode($_GET['locationId'] ?? '304554');
-        $url = 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchRestaurants?locationId=' . $locationId;
-        $result = makeRapidApiRequest($url, 'tripadvisor16.p.rapidapi.com', 'GET');
-        echo json_encode(['success' => true, 'data' => $result]);
+        $locationId = $_GET['locationId'] ?? 'Unknown'; // Note: frontend now passes region as locationId for Gemini
+        $system = "You are a travel database. The user is asking for top restaurants in '$locationId'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?restaurant,food').";
+        $parsed = callGemini("Top restaurants in $locationId", $system, true);
+        if ($parsed && is_array($parsed)) {
+            echo json_encode(['success' => true, 'data' => ['places' => $parsed]]);
+        } else {
+            echo json_encode(['success' => false]);
+        }
         break;
 
     case 'search_hotels':
-        // travel-advisor
         $input = json_decode(file_get_contents('php://input'), true);
-        $contentId = $input['contentId'] ?? '4172546'; // fallback
-        $data = [
-            'contentType' => 'hotel',
-            'contentId' => $contentId,
-            'questionId' => '8393250',
-            'pagee' => 0,
-            'updateToken' => ''
-        ];
-        $result = makeRapidApiRequest('https://travel-advisor.p.rapidapi.com/answers/v2/list?currency=USD&units=km&lang=en_US', 'travel-advisor.p.rapidapi.com', 'POST', $data);
-        echo json_encode(['success' => true, 'data' => $result]);
+        $region = $input['contentId'] ?? 'Unknown';
+        $system = "You are a travel database. The user is asking for top hotels in '$region'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?hotel,resort').";
+        $parsed = callGemini("Top hotels in $region", $system, true);
+        if ($parsed && is_array($parsed)) {
+            echo json_encode(['success' => true, 'data' => ['places' => $parsed]]);
+        } else {
+            echo json_encode(['success' => false]);
+        }
         break;
 
     case 'search_cars':

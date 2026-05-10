@@ -154,9 +154,10 @@ requireAuth();
         <p style="color:var(--text-secondary);font-size:var(--text-lg);">Live data from TripAdvisor and Travel Guide APIs</p>
     </div>
 
-    <div class="search-bar-wrapper">
+    <div class="search-bar-wrapper" style="position:relative;">
         <i data-lucide="search" class="search-icon"></i>
         <input type="text" id="searchInput" placeholder="Search a city (e.g., Paris, London, Tokyo)..." autocomplete="off">
+        <div id="locationDropdown" class="glass-card-static" style="display:none;position:absolute;top:100%;left:0;right:0;margin-top:var(--space-2);z-index:var(--z-dropdown);max-height:200px;overflow-y:auto;padding:var(--space-2);"></div>
     </div>
 
     <div id="resultsContainer" style="display:none;">
@@ -183,11 +184,63 @@ requireAuth();
 
 <script>
 let currentCity = '';
+const destInput = document.getElementById('searchInput');
+const destDropdown = document.getElementById('locationDropdown');
+let typingTimer;
 
-document.getElementById('searchInput').addEventListener('keypress', function(e) {
+destInput.addEventListener('input', () => {
+    clearTimeout(typingTimer);
+    const q = destInput.value.trim();
+    if(q.length < 3) {
+        destDropdown.style.display = 'none';
+        return;
+    }
+    typingTimer = setTimeout(async () => {
+        try {
+            const res = await fetch(`<?= APP_URL ?>/api/external.php?action=locations_autocomplete&q=${encodeURIComponent(q)}`);
+            const json = await res.json();
+            if(json.success && json.data) {
+                destDropdown.innerHTML = '';
+                const locations = Array.isArray(json.data) ? json.data : (json.data.locations || []);
+                if(locations.length === 0) {
+                    destDropdown.innerHTML = '<div style="padding:8px;color:var(--text-muted);font-size:12px;">No results found</div>';
+                } else {
+                    locations.slice(0, 5).forEach(loc => {
+                        const name = loc.name || loc.exactMatch || loc || 'Unknown Location';
+                        const el = document.createElement('div');
+                        el.style.cssText = 'padding:8px;cursor:pointer;border-radius:4px;font-size:14px;color:var(--text-primary);';
+                        el.onmouseover = () => el.style.background = 'rgba(255,255,255,0.05)';
+                        el.onmouseout = () => el.style.background = 'transparent';
+                        el.textContent = name;
+                        el.onclick = () => {
+                            destInput.value = name;
+                            destDropdown.style.display = 'none';
+                            currentCity = name;
+                            document.getElementById('resultsContainer').style.display = 'block';
+                            fetchData();
+                        };
+                        destDropdown.appendChild(el);
+                    });
+                }
+                destDropdown.style.display = 'block';
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }, 500);
+});
+
+document.addEventListener('click', (e) => {
+    if(e.target !== destInput && e.target !== destDropdown) {
+        destDropdown.style.display = 'none';
+    }
+});
+
+destInput.addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         const query = this.value.trim();
         if (query) {
+            destDropdown.style.display = 'none';
             currentCity = query;
             document.getElementById('resultsContainer').style.display = 'block';
             fetchData();
@@ -217,25 +270,38 @@ async function fetchData() {
         const placesRes = await fetch('<?= APP_URL ?>/api/external.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ action: 'city_top_places', region: currentCity, interests: ["historical", "cultural"] })
+            body: JSON.stringify({ action: 'city_top_places', region: currentCity })
         });
         const placesData = await placesRes.json();
         
         // Render Places
         if (placesData.success && placesData.data && placesData.data.places) {
-            // Note: Data structure depends on actual RapidAPI response. Fallbacking to robust rendering.
-            renderItems(placesData.data.places || placesData.data, 'placesGrid', 'map-pin');
+            renderItems(placesData.data.places, 'placesGrid', 'map-pin');
         } else {
-            // Mock if API fails / quota exceeded
             mockRender('placesGrid', 'Places');
         }
 
-        // 2. Fetch Restaurants (using tripadvisor API)
-        // Note: Tripadvisor API requires a locationId first, but we are simulating direct search for demo purposes.
-        mockRender('restaurantsGrid', 'Restaurants');
+        // 2. Fetch Restaurants
+        const restRes = await fetch(`<?= APP_URL ?>/api/external.php?action=search_restaurants&locationId=${encodeURIComponent(currentCity)}`);
+        const restData = await restRes.json();
+        if (restData.success && restData.data && restData.data.places) {
+            renderItems(restData.data.places, 'restaurantsGrid', 'utensils');
+        } else {
+            mockRender('restaurantsGrid', 'Restaurants');
+        }
 
-        // 3. Fetch Hotels (using travel-advisor API)
-        mockRender('hotelsGrid', 'Hotels');
+        // 3. Fetch Hotels
+        const hotelRes = await fetch('<?= APP_URL ?>/api/external.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ action: 'search_hotels', contentId: currentCity })
+        });
+        const hotelData = await hotelRes.json();
+        if (hotelData.success && hotelData.data && hotelData.data.places) {
+            renderItems(hotelData.data.places, 'hotelsGrid', 'bed');
+        } else {
+            mockRender('hotelsGrid', 'Hotels');
+        }
 
     } catch (e) {
         console.error(e);
