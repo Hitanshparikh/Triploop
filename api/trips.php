@@ -8,7 +8,7 @@ $action = $_POST['action'] ?? '';
 
 if ($action === 'create') {
     // Validate CSRF
-    if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+    if (!validateCsrfToken($_POST[CSRF_TOKEN_NAME] ?? '')) {
         echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
         exit;
     }
