@@ -102,26 +102,25 @@ if ($action === 'create') {
                 ]
             ];
         } else {
-            // Call the proxy internally since we are already in the backend
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => "https://ai-trip-planner.p.rapidapi.com/detailed-plan",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($data),
-                CURLOPT_HTTPHEADER => [
-                    "Content-Type: application/json",
-                    "x-rapidapi-host: ai-trip-planner.p.rapidapi.com",
-                    "x-rapidapi-key: " . RAPIDAPI_KEY
-                ],
-            ]);
-            $response = curl_exec($curl);
-            curl_close($curl);
-            $plan = json_decode($response, true);
+            // Generic Fallback
+            $plan = [
+                'plan' => [
+                    [
+                        'activities' => [
+                            ['title' => 'Arrive and check-in', 'description' => 'Settle down and freshen up.', 'time' => '14:00', 'location' => $destination],
+                            ['title' => 'City Center Walk', 'description' => 'Explore the vibrant city center.', 'time' => '16:00', 'location' => 'City Center'],
+                            ['title' => 'Welcome Dinner', 'description' => 'Enjoy a nice local dinner.', 'time' => '19:00', 'location' => 'Downtown Restaurant']
+                        ]
+                    ],
+                    [
+                        'activities' => [
+                            ['title' => 'Museum Visit', 'description' => 'Explore local art and history.', 'time' => '10:00', 'location' => 'Central Museum'],
+                            ['title' => 'Lunch at the Park', 'description' => 'Relaxing lunch break.', 'time' => '13:00', 'location' => 'City Park'],
+                            ['title' => 'Evening Entertainment', 'description' => 'Catch a local show or movie.', 'time' => '20:00', 'location' => 'Theater District']
+                        ]
+                    ]
+                ]
+            ];
         }
         
         if ($plan && is_array($plan)) {
