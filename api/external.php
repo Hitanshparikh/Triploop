@@ -57,9 +57,9 @@ switch ($action) {
         // ai-trip-planner
         $days = $inputData['days'] ?? 3;
         $destination = $inputData['destination'] ?? 'Paris';
-        $interests = $input['interests'] ?? ['sightseeing'];
-        $budget = $input['budget'] ?? 'medium';
-        $travelMode = $input['travelMode'] ?? 'public transport';
+        $interests = $inputData['interests'] ?? ['sightseeing'];
+        $budget = $inputData['budget'] ?? 'medium';
+        $travelMode = $inputData['travelMode'] ?? 'public transport';
 
         $data = [
             'days' => (int)$days,
@@ -93,17 +93,17 @@ switch ($action) {
         $region = $inputData['region'] ?? 'London';
         if (stripos($region, 'taipei') !== false) {
             echo json_encode(['success' => true, 'data' => ['places' => [
-                ['name' => 'Taipei 101', 'description' => 'Iconic skyscraper with an observatory.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1552993873-0f4ec6d62a98?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Chiang Kai-shek Memorial Hall', 'description' => 'Famous national monument.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1572019777174-8b5e905d5e56?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'National Palace Museum', 'description' => 'Huge collection of Chinese art.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1621255855073-6330fb3950fb?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Elephant Mountain', 'description' => 'Hiking trail with great city views.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1596781223910-c057697b0d77?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Longshan Temple', 'description' => 'Historic and beautifully ornate temple.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1556064436-b6b5d92dfce7?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Ximending', 'description' => 'Bustling shopping and entertainment district.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1549693578-cbc25555d496?auto=format&fit=crop&w=400&q=80']
+                ['name' => 'Taipei 101', 'description' => 'Iconic skyscraper with an observatory.', 'rating' => 4.8, 'image' => 'https://loremflickr.com/400/300/taipei,101'],
+                ['name' => 'Chiang Kai-shek Memorial Hall', 'description' => 'Famous national monument.', 'rating' => 4.6, 'image' => 'https://loremflickr.com/400/300/taipei,landmark'],
+                ['name' => 'National Palace Museum', 'description' => 'Huge collection of Chinese art.', 'rating' => 4.7, 'image' => 'https://loremflickr.com/400/300/museum,taipei'],
+                ['name' => 'Elephant Mountain', 'description' => 'Hiking trail with great city views.', 'rating' => 4.8, 'image' => 'https://loremflickr.com/400/300/mountain,taipei'],
+                ['name' => 'Longshan Temple', 'description' => 'Historic and beautifully ornate temple.', 'rating' => 4.6, 'image' => 'https://loremflickr.com/400/300/temple,taipei'],
+                ['name' => 'Ximending', 'description' => 'Bustling shopping and entertainment district.', 'rating' => 4.5, 'image' => 'https://loremflickr.com/400/300/shopping,taipei']
             ]]]);
             exit;
         }
         
-        $system = "You are a travel database. The user is asking for top places to visit in '$region'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float between 4.0 and 5.0), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?' + urlencode(name)).";
+        $system = "You are a travel database. The user is asking for top places to visit in '$region'. Return a JSON array of 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float between 4.0 and 5.0), 'image' (string). For 'image', use a high-quality Unsplash URL related to the place if known, otherwise use 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'.";
         $parsed = callGemini("Top places in $region", $system, true);
         
         if ($parsed && is_array($parsed)) {
@@ -111,8 +111,10 @@ switch ($action) {
         } else {
             // Fallback generic places
             echo json_encode(['success' => true, 'data' => ['places' => [
-                ['name' => 'City Center Plaza', 'description' => 'Bustling downtown area.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Historical Museum', 'description' => 'Learn about the local history.', 'rating' => 4.3, 'image' => 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Historical Center', 'description' => 'The heart of the city with amazing architecture.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'City Park', 'description' => 'A beautiful green space for relaxation.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Main Museum', 'description' => 'A collection of local and international art.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1518998053574-53ee7961a981?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Observation Deck', 'description' => 'The best view of the city skyline.', 'rating' => 4.9, 'image' => 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=400&q=80']
             ]]]);
         }
         break;
@@ -136,23 +138,25 @@ switch ($action) {
         $locationId = $_GET['locationId'] ?? 'Unknown'; // Note: frontend now passes region as locationId for Gemini
         if (stripos($locationId, 'taipei') !== false) {
             echo json_encode(['success' => true, 'data' => ['places' => [
-                ['name' => 'Din Tai Fung', 'description' => 'World-famous xiao long bao.', 'rating' => 4.9, 'image' => 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Raohe Night Market', 'description' => 'Bustling market with street food.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1525207934214-58e69a8f8a3e?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Shilin Night Market', 'description' => 'One of the largest night markets.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Addiction Aquatic Development', 'description' => 'Fresh seafood market and sushi bar.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'MUME', 'description' => 'Michelin-starred modern European cuisine.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Ay-Chung Flour-Rice Noodle', 'description' => 'Legendary street food spot in Ximending.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1582450871972-ab5ce21118ce?auto=format&fit=crop&w=400&q=80']
+                ['name' => 'Din Tai Fung', 'description' => 'World-famous xiao long bao.', 'rating' => 4.9, 'image' => 'https://loremflickr.com/400/300/dumplings,taipei'],
+                ['name' => 'Raohe Night Market', 'description' => 'Bustling market with street food.', 'rating' => 4.7, 'image' => 'https://loremflickr.com/400/300/nightmarket,taipei'],
+                ['name' => 'Shilin Night Market', 'description' => 'One of the largest night markets.', 'rating' => 4.6, 'image' => 'https://loremflickr.com/400/300/food,taipei'],
+                ['name' => 'Addiction Aquatic Development', 'description' => 'Fresh seafood market and sushi bar.', 'rating' => 4.8, 'image' => 'https://loremflickr.com/400/300/seafood,taipei'],
+                ['name' => 'MUME', 'description' => 'Michelin-starred modern European cuisine.', 'rating' => 4.7, 'image' => 'https://loremflickr.com/400/300/finedining,taipei'],
+                ['name' => 'Ay-Chung Flour-Rice Noodle', 'description' => 'Legendary street food spot in Ximending.', 'rating' => 4.5, 'image' => 'https://loremflickr.com/400/300/noodles,taipei']
             ]]]);
             exit;
         }
-        $system = "You are a travel database. The user is asking for top restaurants in '$locationId'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?restaurant,food').";
+        $system = "You are a travel database. The user is asking for top restaurants in '$locationId'. Return a JSON array of 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float between 4.0 and 5.0), 'image' (string). For 'image', use a high-quality food/restaurant Unsplash URL.";
         $parsed = callGemini("Top restaurants in $locationId", $system, true);
         if ($parsed && is_array($parsed)) {
             echo json_encode(['success' => true, 'data' => ['places' => $parsed]]);
         } else {
             echo json_encode(['success' => true, 'data' => ['places' => [
-                ['name' => 'The Grand Bistro', 'description' => 'Classic fine dining.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Local Street Eats', 'description' => 'Authentic flavors.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80']
+                ['name' => 'The Grand Bistro', 'description' => 'Classic fine dining with local flavors.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Local Street Eats', 'description' => 'Authentic and affordable local food.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Sky Lounge', 'description' => 'Rooftop bar with amazing views.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Old Town Cafe', 'description' => 'Charming cafe in the historic district.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=400&q=80']
             ]]]);
         }
         break;
@@ -161,23 +165,25 @@ switch ($action) {
         $region = $inputData['contentId'] ?? 'Unknown';
         if (stripos($region, 'taipei') !== false) {
             echo json_encode(['success' => true, 'data' => ['places' => [
-                ['name' => 'W Taipei', 'description' => 'Luxury hotel with a trendy vibe.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Grand Hyatt Taipei', 'description' => 'Iconic 5-star hotel near Taipei 101.', 'rating' => 4.5, 'image' => 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Regent Taipei', 'description' => 'Elegant and sophisticated stay.', 'rating' => 4.8, 'image' => 'https://images.unsplash.com/photo-1542314831-c6a420325142?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Mandarin Oriental Taipei', 'description' => 'Ultra-luxurious with classic European design.', 'rating' => 4.9, 'image' => 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Kimpton Da An', 'description' => 'Chic boutique hotel in a hip neighborhood.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1551882547-ff40c0d12c56?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Palais de Chine', 'description' => 'Unique blend of Eastern and Western elegance.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1618773928120-2c1538fc1225?auto=format&fit=crop&w=400&q=80']
+                ['name' => 'W Taipei', 'description' => 'Luxury hotel with a trendy vibe.', 'rating' => 4.7, 'image' => 'https://loremflickr.com/400/300/hotel,luxury,taipei'],
+                ['name' => 'Grand Hyatt Taipei', 'description' => 'Iconic 5-star hotel near Taipei 101.', 'rating' => 4.5, 'image' => 'https://loremflickr.com/400/300/hyatt,taipei'],
+                ['name' => 'Regent Taipei', 'description' => 'Elegant and sophisticated stay.', 'rating' => 4.8, 'image' => 'https://loremflickr.com/400/300/regent,taipei'],
+                ['name' => 'Mandarin Oriental Taipei', 'description' => 'Ultra-luxurious with classic European design.', 'rating' => 4.9, 'image' => 'https://loremflickr.com/400/300/mandarin,taipei'],
+                ['name' => 'Kimpton Da An', 'description' => 'Chic boutique hotel in a hip neighborhood.', 'rating' => 4.7, 'image' => 'https://loremflickr.com/400/300/boutique,hotel,taipei'],
+                ['name' => 'Palais de Chine', 'description' => 'Unique blend of Eastern and Western elegance.', 'rating' => 4.6, 'image' => 'https://loremflickr.com/400/300/palais,taipei']
             ]]]);
             exit;
         }
-        $system = "You are a travel database. The user is asking for top hotels in '$region'. Return a JSON array of up to 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float), 'image' (use this exact string format: 'https://source.unsplash.com/400x300/?hotel,resort').";
+        $system = "You are a travel database. The user is asking for top hotels in '$region'. Return a JSON array of 6 objects. Each object MUST have exactly these keys: 'name' (string), 'description' (short string), 'rating' (float between 4.0 and 5.0), 'image' (string). For 'image', use a high-quality hotel/resort image URL from loremflickr.com (e.g., https://loremflickr.com/400/300/hotel).";
         $parsed = callGemini("Top hotels in $region", $system, true);
         if ($parsed && is_array($parsed)) {
             echo json_encode(['success' => true, 'data' => ['places' => $parsed]]);
         } else {
             echo json_encode(['success' => true, 'data' => ['places' => [
                 ['name' => 'The Plaza Hotel', 'description' => 'Luxury stay in the heart of the city.', 'rating' => 4.9, 'image' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'],
-                ['name' => 'Downtown Inn', 'description' => 'Cozy and affordable.', 'rating' => 4.2, 'image' => 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=400&q=80']
+                ['name' => 'Riverside Resort', 'description' => 'Beautiful views and world-class amenities.', 'rating' => 4.7, 'image' => 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Downtown Inn', 'description' => 'Cozy, affordable, and centrally located.', 'rating' => 4.2, 'image' => 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=400&q=80'],
+                ['name' => 'Boutique Stay', 'description' => 'Unique design and personalized service.', 'rating' => 4.6, 'image' => 'https://images.unsplash.com/photo-1544124499-58ec52cf3967?auto=format&fit=crop&w=400&q=80']
             ]]]);
         }
         break;

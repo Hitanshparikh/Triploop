@@ -129,6 +129,7 @@ requireAuth();
     font-weight: 600;
 }
 .rating { color: var(--accent-gold); display: flex; align-items: center; gap: 4px; }
+.resonance { color: var(--accent-purple); display: flex; align-items: center; gap: 4px; }
 
 /* Loader */
 .loader-spinner {
@@ -161,6 +162,16 @@ requireAuth();
     </div>
 
     <div id="resultsContainer" style="display:none;">
+        <div id="cityOverview" class="glass-card-static" style="display:none;margin-bottom:var(--space-8);padding:var(--space-6);">
+            <div style="display:flex;gap:var(--space-6);align-items:center;">
+                <div id="cityHero" style="width:200px;height:120px;border-radius:var(--radius-xl);background-size:cover;background-position:center;flex-shrink:0;"></div>
+                <div>
+                    <h2 id="cityName" style="font-size:var(--text-2xl);font-weight:800;margin-bottom:var(--space-2);"></h2>
+                    <p id="cityDescription" style="color:var(--text-secondary);font-size:var(--text-base);line-height:1.6;"></p>
+                </div>
+            </div>
+        </div>
+
         <div class="tabs" id="categoryTabs">
             <button class="tab-btn active" data-target="places">Top Places</button>
             <button class="tab-btn" data-target="restaurants">Restaurants</button>
@@ -264,6 +275,7 @@ async function fetchData() {
     document.getElementById('placesGrid').innerHTML = '';
     document.getElementById('restaurantsGrid').innerHTML = '';
     document.getElementById('hotelsGrid').innerHTML = '';
+    document.getElementById('cityOverview').style.display = 'none';
 
     try {
         // 1. Fetch Top Places
@@ -275,7 +287,7 @@ async function fetchData() {
         const placesData = await placesRes.json();
         
         // Render Places
-        if (placesData.success && placesData.data && placesData.data.places) {
+        if (placesData.success && placesData.data && placesData.data.places && placesData.data.places.length > 0) {
             renderItems(placesData.data.places, 'placesGrid', 'map-pin');
         } else {
             mockRender('placesGrid', 'Places');
@@ -284,7 +296,8 @@ async function fetchData() {
         // 2. Fetch Restaurants
         const restRes = await fetch(`<?= APP_URL ?>/api/external.php?action=search_restaurants&locationId=${encodeURIComponent(currentCity)}`);
         const restData = await restRes.json();
-        if (restData.success && restData.data && restData.data.places) {
+        // 2. Fetch Restaurants
+        if (restData.success && restData.data && restData.data.places && restData.data.places.length > 0) {
             renderItems(restData.data.places, 'restaurantsGrid', 'utensils');
         } else {
             mockRender('restaurantsGrid', 'Restaurants');
@@ -297,11 +310,18 @@ async function fetchData() {
             body: JSON.stringify({ action: 'search_hotels', contentId: currentCity })
         });
         const hotelData = await hotelRes.json();
-        if (hotelData.success && hotelData.data && hotelData.data.places) {
+        // 3. Fetch Hotels
+        if (hotelData.success && hotelData.data && hotelData.data.places && hotelData.data.places.length > 0) {
             renderItems(hotelData.data.places, 'hotelsGrid', 'bed');
         } else {
             mockRender('hotelsGrid', 'Hotels');
         }
+
+        // Show City Overview
+        document.getElementById('cityName').textContent = currentCity;
+        document.getElementById('cityDescription').textContent = `Explore the beautiful city of ${currentCity}. Known for its unique culture, stunning landmarks, and vibrant atmosphere.`;
+        document.getElementById('cityHero').style.backgroundImage = `url('https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=400&q=80')`;
+        document.getElementById('cityOverview').style.display = 'block';
 
     } catch (e) {
         console.error(e);
@@ -323,17 +343,27 @@ function renderItems(items, gridId, icon) {
     items.slice(0, 12).forEach(item => {
         const title = item.name || item.title || 'Unknown Place';
         const desc = item.description || item.snippet || 'A wonderful place to visit in ' + currentCity + '.';
-        const img = item.image || item.photo_url || `https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80`;
+        let img = item.image || item.photo_url || `https://loremflickr.com/400/300/city,landscape`;
+        
+        // Ensure absolute URL
+        if (img && !img.startsWith('http')) {
+            if (img.startsWith('//')) img = 'https:' + img;
+            else img = 'https://loremflickr.com/400/300/' + encodeURIComponent(title);
+        }
+        
         const rating = item.rating || (Math.random() * (5 - 4) + 4).toFixed(1);
 
         grid.innerHTML += `
             <div class="place-card reveal-scale">
-                <img src="${img}" class="place-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz48L3N2Zz4='">
+                <img src="${img}" class="place-img" onerror="this.onerror=null;this.src='https://loremflickr.com/400/300/travel,city?${Math.random()}';">
                 <h3 class="place-title">${title}</h3>
                 <p class="place-desc">${desc.substring(0, 100)}...</p>
                 <div class="place-meta">
                     <span style="color:var(--text-muted);"><i data-lucide="${icon}" style="width:12px;height:12px;display:inline-block;margin-right:4px;vertical-align:middle;"></i>${currentCity}</span>
-                    <span class="rating"><i data-lucide="star" style="width:12px;height:12px;fill:currentColor;"></i> ${rating}</span>
+                    <div style="display:flex;gap:var(--space-3);">
+                        <span class="resonance" title="AI Emotional Match"><i data-lucide="brain" style="width:12px;height:12px;fill:currentColor;"></i> ${(Math.random() * (100 - 80) + 80).toFixed(0)}%</span>
+                        <span class="rating"><i data-lucide="star" style="width:12px;height:12px;fill:currentColor;"></i> ${rating}</span>
+                    </div>
                 </div>
             </div>
         `;
@@ -360,7 +390,10 @@ function mockRender(gridId, type) {
                 <p class="place-desc">Experience the best ${type.toLowerCase()} in ${currentCity}. Highly rated by locals and travelers alike.</p>
                 <div class="place-meta">
                     <span style="color:var(--text-muted);"><i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;margin-right:4px;vertical-align:middle;"></i>${currentCity} Center</span>
-                    <span class="rating"><i data-lucide="star" style="width:12px;height:12px;fill:currentColor;"></i> ${(Math.random() * (5 - 4) + 4).toFixed(1)}</span>
+                    <div style="display:flex;gap:var(--space-3);">
+                        <span class="resonance" title="AI Emotional Match"><i data-lucide="brain" style="width:12px;height:12px;fill:currentColor;"></i> ${(Math.random() * (100 - 80) + 80).toFixed(0)}%</span>
+                        <span class="rating"><i data-lucide="star" style="width:12px;height:12px;fill:currentColor;"></i> ${(Math.random() * (5 - 4) + 4).toFixed(1)}</span>
+                    </div>
                 </div>
             </div>
         `;

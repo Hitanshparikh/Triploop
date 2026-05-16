@@ -18,6 +18,7 @@
             ['url' => '/pages/packing.php', 'icon' => 'check-square', 'label' => 'Packing List'],
             ['url' => '/pages/community.php', 'icon' => 'users', 'label' => 'Community Feed'],
             ['url' => '/pages/city-search.php', 'icon' => 'search', 'label' => 'Discover'],
+            ['url' => '/pages/simulation.php', 'icon' => 'bar-chart-2', 'label' => 'Trip Simulation'],
             ['url' => '/pages/bookings.php', 'icon' => 'plane', 'label' => 'Bookings'],
         ];
         
